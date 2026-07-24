@@ -8,9 +8,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+      },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        ink: {
+          DEFAULT: "var(--color-text)",
+          muted: "var(--color-text-muted)",
+        },
+        hairline: "var(--color-border)",
+        home: "var(--color-bg-home)",
+        warm: "var(--color-bg-warm)",
+        paper: "var(--color-bg-light)",
+        night: "var(--color-bg-dark)",
       },
     },
   },
