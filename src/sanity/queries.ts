@@ -45,6 +45,18 @@ export const photosQuery = /* groq */ `
   }
 `;
 
+export const referenceIntrosQuery = /* groq */ `
+  *[_type == "inspiration" && _id == "inspiration"][0] {
+    booksIntro, talksIntro, albumsIntro, mixesIntro, moviesIntro, softwareIntro, nonprofitsIntro
+  }
+`;
+
+export const mixesQuery = /* groq */ `
+  *[_type == "mix"] | order(title asc) {
+    _id, title, url, annotation
+  }
+`;
+
 export const moviesQuery = /* groq */ `
   *[_type == "movie"] | order(year desc, title asc) {
     _id, title, director, year, annotation, url
@@ -54,6 +66,18 @@ export const moviesQuery = /* groq */ `
 export const booksQuery = /* groq */ `
   *[_type == "book"] | order(coalesce(yearRead, 0) desc, title asc) {
     _id, title, author, yearRead, annotation
+  }
+`;
+
+export const albumsQuery = /* groq */ `
+  *[_type == "album"] | order(coalesce(year, 0) desc, title asc) {
+    _id, title, artist, year, annotation, url
+  }
+`;
+
+export const softwareQuery = /* groq */ `
+  *[_type == "software"] | order(name asc) {
+    _id, name, url
   }
 `;
 

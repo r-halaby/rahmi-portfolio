@@ -29,7 +29,6 @@ export const wishProject = defineType({
       description: "Why you wish you made it — specific to you.",
       type: "text",
       rows: 3,
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "tags",

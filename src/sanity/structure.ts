@@ -1,6 +1,6 @@
 import type { StructureResolver } from "sanity/structure";
 
-const SINGLETON_TYPES = new Set(["now", "landing", "bio"]);
+const SINGLETON_TYPES = new Set(["now", "landing", "bio", "inspiration"]);
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -19,19 +19,22 @@ export const structure: StructureResolver = (S) =>
         .title("Bio")
         .id("bio")
         .child(
-          S.editor()
-            .id("bio")
-            .schemaType("bio")
-            .documentId("bio"),
+          S.editor().id("bio").schemaType("bio").documentId("bio"),
         ),
       S.listItem()
         .title("Now")
         .id("now")
         .child(
+          S.editor().id("now").schemaType("now").documentId("now"),
+        ),
+      S.listItem()
+        .title("Inspiration")
+        .id("inspiration")
+        .child(
           S.editor()
-            .id("now")
-            .schemaType("now")
-            .documentId("now"),
+            .id("inspiration")
+            .schemaType("inspiration")
+            .documentId("inspiration"),
         ),
       S.divider(),
       ...S.documentTypeListItems().filter(

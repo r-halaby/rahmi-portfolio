@@ -28,7 +28,6 @@ export const book = defineType({
       description: "Why you included it. Not a review.",
       type: "text",
       rows: 3,
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "tags",

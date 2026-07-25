@@ -29,8 +29,8 @@ const NAV: { key: LandingKey; href: string; label: string }[] = [
   { key: "work", href: "/work", label: "Selected Work" },
   { key: "writing", href: "/writing", label: "Writing" },
   { key: "photography", href: "/photography", label: "Photography" },
-  { key: "reference", href: "/reference", label: "Reference Stack" },
-  { key: "futures", href: "/futures", label: "Designing Futures" },
+  { key: "reference", href: "/reference", label: "Inspiration" },
+  { key: "futures", href: "/futures", label: "Playspace" },
   { key: "wish", href: "/wish", label: "Projects I Wish I Made" },
 ];
 

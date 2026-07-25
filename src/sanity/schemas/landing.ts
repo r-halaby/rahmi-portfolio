@@ -17,8 +17,8 @@ export const landing = defineType({
     tile("work", "Selected Work"),
     tile("writing", "Writing"),
     tile("photography", "Photography"),
-    tile("reference", "Reference Stack"),
-    tile("futures", "Designing Futures"),
+    tile("reference", "Inspiration"),
+    tile("futures", "Playspace"),
     tile("wish", "Projects I Wish I Made"),
   ],
   preview: {
