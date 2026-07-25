@@ -1,8 +1,10 @@
 import type { SchemaTypeDefinition } from "sanity";
 
 import { article } from "./article";
+import { bio } from "./bio";
 import { book } from "./book";
 import { future } from "./future";
+import { landing } from "./landing";
 import { movie } from "./movie";
 import { nonprofit } from "./nonprofit";
 import { now } from "./now";
@@ -17,6 +19,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   tag,
   skill,
   now,
+  bio,
+  landing,
   project,
   article,
   movie,

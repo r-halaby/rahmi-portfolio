@@ -5,7 +5,7 @@ import { schemaTypes } from "./src/sanity/schemas";
 import { structure } from "./src/sanity/structure";
 import { apiVersion, dataset, projectId } from "./src/sanity/env";
 
-const SINGLETON_TYPES = new Set(["now"]);
+const SINGLETON_TYPES = new Set(["now", "landing", "bio"]);
 const SINGLETON_ACTIONS = new Set([
   "publish",
   "discardChanges",

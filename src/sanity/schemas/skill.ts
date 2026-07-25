@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 
 export const skill = defineType({
   name: "skill",
@@ -8,6 +8,7 @@ export const skill = defineType({
     defineField({
       name: "name",
       title: "Name",
+      description: "Must exactly match the label used on the landing (e.g. 'Brand leadership').",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
@@ -25,15 +26,29 @@ export const skill = defineType({
         ],
         layout: "radio",
       },
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "body",
-      title: "Body",
+      title: "Overview",
       description:
-        "Lead with a specific moment or project — not a generic summary.",
+        "Brief overview shown at the top of the skill modal. Lead with a specific moment or project.",
       type: "array",
       of: [{ type: "block" }],
+    }),
+    defineField({
+      name: "gallery",
+      title: "Gallery",
+      description: "Images or reference frames shown below the overview.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            defineField({ name: "caption", title: "Caption", type: "string" }),
+          ],
+        }),
+      ],
     }),
     defineField({
       name: "order",
