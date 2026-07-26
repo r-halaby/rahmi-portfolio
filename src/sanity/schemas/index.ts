@@ -12,6 +12,7 @@ import { nonprofit } from "./nonprofit";
 import { now } from "./now";
 import { photo } from "./photo";
 import { project } from "./project";
+import { publication } from "./publication";
 import { inspiration } from "./reference";
 import { skill } from "./skill";
 import { software } from "./software";
@@ -27,6 +28,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   landing,
   inspiration,
   project,
+  publication,
   article,
   movie,
   book,

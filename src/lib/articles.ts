@@ -4,9 +4,15 @@ export type ArticleMeta = {
   title: string | null;
   siteName: string | null;
   publishedTime: string | null;
+  imageUrl: string | null;
 };
 
-const EMPTY: ArticleMeta = { title: null, siteName: null, publishedTime: null };
+const EMPTY: ArticleMeta = {
+  title: null,
+  siteName: null,
+  publishedTime: null,
+  imageUrl: null,
+};
 
 function decodeEntities(s: string | null): string | null {
   if (!s) return s;
@@ -43,6 +49,10 @@ export async function fetchArticleMeta(url: string): Promise<ArticleMeta> {
       title: pickMeta(html, "og:title"),
       siteName: pickMeta(html, "og:site_name"),
       publishedTime: pickMeta(html, "article:published_time"),
+      imageUrl:
+        pickMeta(html, "og:image") ??
+        pickMeta(html, "twitter:image") ??
+        null,
     };
   } catch {
     return EMPTY;

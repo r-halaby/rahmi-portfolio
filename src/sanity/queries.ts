@@ -31,6 +31,12 @@ export const articleByIdQuery = /* groq */ `
   }
 `;
 
+export const publicationsQuery = /* groq */ `
+  *[_type == "publication"] {
+    _id, name, description, url
+  }
+`;
+
 export const bioQuery = /* groq */ `
   *[_type == "bio" && _id == "bio"][0] {
     photo,

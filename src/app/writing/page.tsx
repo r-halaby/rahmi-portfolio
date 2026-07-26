@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { fetchArticleMeta } from "@/lib/articles";
 import { client } from "@/sanity/client";
-import { articlesArchiveQuery } from "@/sanity/queries";
+import { articlesArchiveQuery, publicationsQuery } from "@/sanity/queries";
 
 type ArticleDoc = {
   _id: string;
@@ -15,62 +15,85 @@ type ArticleDoc = {
 type ArticleRow = {
   _id: string;
   title: string;
-  publication: string | null;
+  publication: string;
   category: string | null;
-  year: number | null;
   publishedAt: string | null;
+  imageUrl: string | null;
+  url: string;
+};
+
+type PublicationDoc = {
+  _id: string;
+  name: string;
+  description: string | null;
+  url: string | null;
 };
 
 export const revalidate = 60;
 
-function yearOf(iso: string | null | undefined): number | null {
+const OTHER = "Other";
+
+function formatMonthYear(iso: string | null | undefined): string | null {
   if (!iso) return null;
-  const y = parseInt(iso.slice(0, 4), 10);
-  return Number.isFinite(y) ? y : null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-function groupByYear(rows: ArticleRow[]): Array<[number | "Undated", ArticleRow[]]> {
-  const buckets = new Map<number | "Undated", ArticleRow[]>();
+function groupByPublication(rows: ArticleRow[]): Map<string, ArticleRow[]> {
+  const groups = new Map<string, ArticleRow[]>();
   for (const r of rows) {
-    const key: number | "Undated" = r.year ?? "Undated";
-    const list = buckets.get(key) ?? [];
+    const key = r.publication || OTHER;
+    const list = groups.get(key) ?? [];
     list.push(r);
-    buckets.set(key, list);
+    groups.set(key, list);
   }
-  const numericKeys = [...buckets.keys()]
-    .filter((k): k is number => typeof k === "number")
-    .sort((a, b) => b - a);
-  const ordered: Array<[number | "Undated", ArticleRow[]]> = numericKeys.map(
-    (k) => [k, buckets.get(k)!],
-  );
-  if (buckets.has("Undated")) ordered.push(["Undated", buckets.get("Undated")!]);
-  return ordered;
+  for (const list of groups.values()) {
+    list.sort((a, b) => {
+      const at = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+      const bt = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+      return bt - at;
+    });
+  }
+  return groups;
 }
 
 export default async function WritingPage() {
-  const docs = await client
-    .fetch<ArticleDoc[]>(articlesArchiveQuery)
-    .catch(() => [] as ArticleDoc[]);
+  const [docs, publications] = await Promise.all([
+    client
+      .fetch<ArticleDoc[]>(articlesArchiveQuery)
+      .catch(() => [] as ArticleDoc[]),
+    client
+      .fetch<PublicationDoc[]>(publicationsQuery)
+      .catch(() => [] as PublicationDoc[]),
+  ]);
 
   const rows: ArticleRow[] = await Promise.all(
     docs.map(async (d) => {
       const meta = await fetchArticleMeta(d.url);
-      const publishedAt = d.publishedAt ?? meta.publishedTime ?? null;
       return {
         _id: d._id,
         title: d.title || meta.title || "Untitled",
-        publication: d.publication || meta.siteName,
+        publication: (d.publication || meta.siteName || "").trim(),
         category: d.category,
-        year: yearOf(publishedAt),
-        publishedAt,
+        publishedAt: d.publishedAt ?? meta.publishedTime ?? null,
+        imageUrl: meta.imageUrl,
+        url: d.url,
       };
     }),
   );
 
-  const groups = groupByYear(rows);
+  const groups = groupByPublication(rows);
+  const pubMap = new Map(publications.map((p) => [p.name, p]));
+
+  const orderedNames = [...groups.keys()].sort((a, b) => {
+    if (a === OTHER) return 1;
+    if (b === OTHER) return -1;
+    return a.localeCompare(b);
+  });
 
   return (
-    <main className="min-h-screen bg-paper text-ink">
+    <main className="min-h-screen bg-warm text-ink">
       <header className="flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
@@ -84,53 +107,108 @@ export default async function WritingPage() {
         {rows.length === 0 ? (
           <p className="text-sm text-ink-muted">—</p>
         ) : (
-          groups.map(([label, items]) => (
-            <Section key={String(label)} title={String(label)}>
-              <div className="grid grid-cols-2 gap-x-10 gap-y-10">
-                {items.map((r) => (
-                  <ArticleEntry key={r._id} row={r} />
-                ))}
-              </div>
-            </Section>
-          ))
+          orderedNames.map((name) => {
+            const pub = pubMap.get(name);
+            return (
+              <PublicationSection
+                key={name}
+                name={name}
+                description={pub?.description ?? null}
+                url={pub?.url ?? null}
+                rows={groups.get(name) ?? []}
+              />
+            );
+          })
         )}
       </div>
     </main>
   );
 }
 
-function Section({
-  title,
-  children,
+function PublicationSection({
+  name,
+  description,
+  url,
+  rows,
 }: {
-  title: string;
-  children: React.ReactNode;
+  name: string;
+  description: string | null;
+  url: string | null;
+  rows: ArticleRow[];
 }) {
   return (
-    <section className="mb-16">
-      <h2 className="mb-8 border-b border-hairline pb-2 text-6xl leading-none">
-        {title}
+    <section className="mb-20">
+      <h2 className="mb-3 border-b border-hairline pb-2 text-6xl leading-none">
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="hover:opacity-70"
+          >
+            {name}
+          </a>
+        ) : (
+          name
+        )}
       </h2>
-      {children}
+      {description && (
+        <p className="mb-8 text-sm leading-relaxed text-ink-muted">
+          {description}
+        </p>
+      )}
+      <ul>
+        {rows.map((r) => (
+          <li key={r._id}>
+            <ArticleRow row={r} publicationName={name} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
-function ArticleEntry({ row }: { row: ArticleRow }) {
-  const meta = [row.publication, row.category].filter(Boolean).join(" · ");
+function ArticleRow({
+  row,
+  publicationName,
+}: {
+  row: ArticleRow;
+  publicationName: string;
+}) {
+  const dateLabel = formatMonthYear(row.publishedAt);
   return (
-    <div>
-      <Link
-        href={`/writing/${row._id}`}
-        className="block text-2xl leading-tight hover:opacity-70"
+    <a
+      href={row.url}
+      target="_blank"
+      rel="noreferrer"
+      className="group grid grid-cols-[7rem_1fr_auto_auto] items-center gap-6 border-b border-hairline py-4"
+    >
+      <div
+        style={{ aspectRatio: "16 / 9" }}
+        className="w-full overflow-hidden bg-ink/5"
+      >
+        {row.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={row.imageUrl}
+            alt=""
+            className="block h-full w-full object-cover transition-opacity group-hover:opacity-90"
+            loading="lazy"
+          />
+        )}
+      </div>
+      <div
+        style={{ maxWidth: "24rem" }}
+        className="min-w-0 truncate text-base text-ink group-hover:opacity-70"
       >
         {row.title}
-      </Link>
-      {meta && (
-        <div className="mt-2 text-xs uppercase tracking-wide text-ink-muted">
-          {meta}
-        </div>
-      )}
-    </div>
+      </div>
+      <div className="text-xs uppercase tracking-wide text-ink-muted">
+        {publicationName}
+      </div>
+      <div className="w-24 text-right text-xs uppercase tracking-wide text-ink-muted">
+        {dateLabel ?? "—"}
+      </div>
+    </a>
   );
 }

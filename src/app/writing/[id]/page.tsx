@@ -71,7 +71,22 @@ export default async function WritingReaderPage({
         <div className="mb-2 text-xs uppercase tracking-widest text-ink-muted">
           {[publication, formatDate(publishedAt)].filter(Boolean).join(" · ")}
         </div>
-        <h1 className="mb-10 text-4xl leading-tight">{title}</h1>
+        <h1 className="mb-6 text-4xl leading-tight">{title}</h1>
+
+        {meta.imageUrl && (
+          <div
+            style={{ aspectRatio: "16 / 9" }}
+            className="mb-10 w-full overflow-hidden bg-ink/5"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={meta.imageUrl}
+              alt=""
+              className="block h-full w-full object-cover"
+              loading="eager"
+            />
+          </div>
+        )}
 
         {reader ? (
           <div
