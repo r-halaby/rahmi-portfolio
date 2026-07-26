@@ -2,26 +2,33 @@ import { defineType, defineField } from "sanity";
 
 export const article = defineType({
   name: "article",
-  title: "Article",
+  title: "Writing",
   type: "document",
   fields: [
     defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
+      name: "url",
+      title: "URL",
+      description: "Paste the article link. Title, publication, and date are auto-fetched.",
+      type: "url",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "title",
+      title: "Title (override)",
+      description: "Only set if the auto-fetched title is wrong.",
+      type: "string",
     }),
     defineField({
       name: "publication",
-      title: "Publication",
+      title: "Publication (override)",
+      description: "Only set if the auto-fetched publication is wrong.",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "url",
-      title: "URL",
-      type: "url",
-      validation: (Rule) => Rule.required(),
+      name: "publishedAt",
+      title: "Published at (override)",
+      description: "Only set if the auto-fetched date is wrong.",
+      type: "date",
     }),
     defineField({
       name: "excerpt",
@@ -29,13 +36,12 @@ export const article = defineType({
       description: "Your words — not the lede.",
       type: "text",
       rows: 3,
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "publishedAt",
-      title: "Published at",
-      type: "date",
-      validation: (Rule) => Rule.required(),
+      name: "category",
+      title: "Category",
+      description: "Free-text tag for the archive table (e.g. Essay, Note, Interview).",
+      type: "string",
     }),
     defineField({
       name: "tags",
@@ -51,5 +57,5 @@ export const article = defineType({
       by: [{ field: "publishedAt", direction: "desc" }],
     },
   ],
-  preview: { select: { title: "title", subtitle: "publication" } },
+  preview: { select: { title: "title", subtitle: "url" } },
 });

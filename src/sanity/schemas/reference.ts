@@ -20,7 +20,7 @@ export const inspiration = defineType({
     intro("mixesIntro", "Mixes intro"),
     intro("moviesIntro", "Movies intro"),
     intro("softwareIntro", "Software intro"),
-    intro("nonprofitsIntro", "Nonprofits intro"),
+    intro("nonprofitsIntro", "Community Organizations intro"),
   ],
   preview: { prepare: () => ({ title: "Inspiration" }) },
 });

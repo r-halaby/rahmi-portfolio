@@ -2,7 +2,7 @@ import { defineType, defineField } from "sanity";
 
 export const nonprofit = defineType({
   name: "nonprofit",
-  title: "Nonprofit",
+  title: "Community Organization",
   type: "document",
   fields: [
     defineField({

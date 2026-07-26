@@ -13,6 +13,24 @@ export const skillsQuery = /* groq */ `
   }
 `;
 
+export const projectsArchiveQuery = /* groq */ `
+  *[_type == "project"] | order(coalesce(year, 0) desc, title asc) {
+    _id, title, "slug": slug.current, client, category, year
+  }
+`;
+
+export const articlesArchiveQuery = /* groq */ `
+  *[_type == "article"] | order(coalesce(publishedAt, _createdAt) desc) {
+    _id, title, publication, category, url, publishedAt
+  }
+`;
+
+export const articleByIdQuery = /* groq */ `
+  *[_type == "article" && _id == $id][0] {
+    _id, title, publication, category, url, publishedAt, excerpt
+  }
+`;
+
 export const bioQuery = /* groq */ `
   *[_type == "bio" && _id == "bio"][0] {
     photo,
@@ -65,7 +83,7 @@ export const moviesQuery = /* groq */ `
 
 export const booksQuery = /* groq */ `
   *[_type == "book"] | order(coalesce(yearRead, 0) desc, title asc) {
-    _id, title, author, yearRead, annotation
+    _id, title, author, yearRead, annotation, url
   }
 `;
 

@@ -34,6 +34,12 @@ export const project = defineType({
       type: "number",
     }),
     defineField({
+      name: "category",
+      title: "Category",
+      description: "Free-text tag for the archive table (e.g. Visual Identity, Consulting, Brand).",
+      type: "string",
+    }),
+    defineField({
       name: "summary",
       title: "Summary",
       description: "Problem → what you made → what you learned. One paragraph.",

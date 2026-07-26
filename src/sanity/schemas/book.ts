@@ -23,6 +23,12 @@ export const book = defineType({
       type: "number",
     }),
     defineField({
+      name: "url",
+      title: "URL",
+      description: "Goodreads / Bookshop / publisher link (optional).",
+      type: "url",
+    }),
+    defineField({
       name: "annotation",
       title: "Annotation",
       description: "Why you included it. Not a review.",

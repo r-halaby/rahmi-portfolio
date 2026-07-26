@@ -14,9 +14,19 @@ function encode(s: string) {
   return encodeURIComponent(s.trim());
 }
 
-// --- Books: OpenLibrary ---------------------------------------------------
+// --- Books: OpenLibrary → OpenLibrary (title-only) → Google Books --------
 export async function bookCover(title: string, author: string) {
-  const url = `https://openlibrary.org/search.json?title=${encode(title)}&author=${encode(author)}&limit=1`;
+  const withAuthor = await openLibraryCover(title, author);
+  if (withAuthor) return withAuthor;
+  const titleOnly = await openLibraryCover(title);
+  if (titleOnly) return titleOnly;
+  return await googleBooksCover(title, author);
+}
+
+async function openLibraryCover(title: string, author?: string) {
+  const params = new URLSearchParams({ title, limit: "1" });
+  if (author) params.set("author", author);
+  const url = `https://openlibrary.org/search.json?${params.toString()}`;
   const data = (await safeFetch(url)) as
     | { docs?: Array<{ cover_i?: number }> }
     | null;
@@ -24,6 +34,22 @@ export async function bookCover(title: string, author: string) {
   return coverId
     ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`
     : null;
+}
+
+async function googleBooksCover(title: string, author: string) {
+  const q = `intitle:${encode(title)}+inauthor:${encode(author)}`;
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1&printType=books`;
+  const data = (await safeFetch(url)) as
+    | {
+        items?: Array<{
+          volumeInfo?: { imageLinks?: { thumbnail?: string; smallThumbnail?: string } };
+        }>;
+      }
+    | null;
+  const links = data?.items?.[0]?.volumeInfo?.imageLinks;
+  const thumb = links?.thumbnail ?? links?.smallThumbnail;
+  if (!thumb) return null;
+  return thumb.replace(/^http:/, "https:").replace(/&edge=curl/, "");
 }
 
 // --- Albums: iTunes Search ------------------------------------------------
