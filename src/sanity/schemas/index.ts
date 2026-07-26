@@ -11,6 +11,7 @@ import { movie } from "./movie";
 import { nonprofit } from "./nonprofit";
 import { now } from "./now";
 import { photo } from "./photo";
+import { photography } from "./photography";
 import { project } from "./project";
 import { publication } from "./publication";
 import { inspiration } from "./reference";
@@ -40,4 +41,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   future,
   wishProject,
   photo,
+  photography,
 ];

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
-import { photosQuery } from "@/sanity/queries";
+import { photographyQuery, photosQuery } from "@/sanity/queries";
 import { PhotoCanvas, type Photo } from "./photo-canvas";
 
 const PLACEHOLDER_PHOTOS: Photo[] = Array.from({ length: 28 }, (_, i) => {
@@ -34,17 +34,16 @@ const PLACEHOLDER_PHOTOS: Photo[] = Array.from({ length: 28 }, (_, i) => {
   };
 });
 
+type PhotographyDoc = { description: string | null } | null;
+
 export const revalidate = 60;
 
 export default async function PhotographyPage() {
-  let photos: Photo[] = [];
-  try {
-    photos = await client.fetch<Photo[]>(photosQuery);
-  } catch {
-    photos = [];
-  }
-  if (!photos.length) photos = PLACEHOLDER_PHOTOS;
-  const capped = photos.slice(0, 60);
+  const [photos, page] = await Promise.all([
+    client.fetch<Photo[]>(photosQuery).catch(() => [] as Photo[]),
+    client.fetch<PhotographyDoc>(photographyQuery).catch(() => null),
+  ]);
+  const displayPhotos = (photos.length ? photos : PLACEHOLDER_PHOTOS).slice(0, 60);
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -54,7 +53,17 @@ export default async function PhotographyPage() {
           -BACK
         </Link>
       </header>
-      <PhotoCanvas photos={capped} />
+      {page?.description && (
+        <div
+          style={{ maxWidth: "33vw" }}
+          className="fixed bottom-6 right-8 z-0 text-right text-xs leading-relaxed text-ink"
+        >
+          {page.description}
+        </div>
+      )}
+      <div className="relative z-10">
+        <PhotoCanvas photos={displayPhotos} />
+      </div>
     </main>
   );
 }

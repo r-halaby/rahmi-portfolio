@@ -5,7 +5,13 @@ import { schemaTypes } from "./src/sanity/schemas";
 import { structure } from "./src/sanity/structure";
 import { apiVersion, dataset, projectId } from "./src/sanity/env";
 
-const SINGLETON_TYPES = new Set(["now", "landing", "bio", "inspiration"]);
+const SINGLETON_TYPES = new Set([
+  "now",
+  "landing",
+  "bio",
+  "inspiration",
+  "photography",
+]);
 const SINGLETON_ACTIONS = new Set([
   "publish",
   "discardChanges",

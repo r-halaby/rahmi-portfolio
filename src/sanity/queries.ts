@@ -51,6 +51,12 @@ export const bioQuery = /* groq */ `
   }
 `;
 
+export const photographyQuery = /* groq */ `
+  *[_type == "photography" && _id == "photography"][0] {
+    description
+  }
+`;
+
 export const photosQuery = /* groq */ `
   *[_type == "photo" && defined(image.asset)] | order(dateTaken desc) {
     _id,
