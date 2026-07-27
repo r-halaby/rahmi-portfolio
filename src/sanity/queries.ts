@@ -13,9 +13,22 @@ export const skillsQuery = /* groq */ `
   }
 `;
 
-export const projectsArchiveQuery = /* groq */ `
-  *[_type == "project"] | order(coalesce(year, 0) desc, title asc) {
-    _id, title, "slug": slug.current, client, category, year
+export const rolesQuery = /* groq */ `
+  *[_type == "role"] | order(coalesce(endDate, "9999-12-31") desc, startDate desc) {
+    _id, title, company, logo, employmentType, workMode, location, startDate, endDate, description,
+    gallery[] { ..., "caption": caption }
+  }
+`;
+
+export const educationsQuery = /* groq */ `
+  *[_type == "education"] | order(coalesce(startDate, "") desc) {
+    _id, institution, logo, degree, fieldOfStudy, startDate, endDate, activities, coursework
+  }
+`;
+
+export const volunteersQuery = /* groq */ `
+  *[_type == "volunteer"] | order(coalesce(startDate, "") desc) {
+    _id, role, organization, logo, cause, startDate, endDate, description
   }
 `;
 
@@ -40,6 +53,7 @@ export const publicationsQuery = /* groq */ `
 export const bioQuery = /* groq */ `
   *[_type == "bio" && _id == "bio"][0] {
     photo,
+    photoCaption,
     body,
     education[] {
       institution, program, location, activities, coursework

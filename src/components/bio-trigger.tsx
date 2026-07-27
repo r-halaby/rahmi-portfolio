@@ -11,6 +11,7 @@ import {
 
 type Props = {
   photoUrl: string | null;
+  photoCaption: string | null;
   body: PortableTextBlock[] | null;
   education: BioEducation[];
   clients: BioClient[];
@@ -19,6 +20,7 @@ type Props = {
 
 export function BioTrigger({
   photoUrl,
+  photoCaption,
   body,
   education,
   clients,
@@ -39,6 +41,7 @@ export function BioTrigger({
         open={open}
         onClose={() => setOpen(false)}
         photoUrl={photoUrl}
+        photoCaption={photoCaption}
         body={body}
         education={education}
         clients={clients}

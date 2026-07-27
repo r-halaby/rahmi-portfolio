@@ -35,7 +35,7 @@ export function NavBox({ href, label, imageUrl }: Props) {
       </Link>
       {hover && (
         <span
-          className="pointer-events-none fixed z-50 whitespace-nowrap text-xs text-ink"
+          className="pointer-events-none fixed z-50 whitespace-nowrap bg-ink px-2 py-1 text-xs text-paper"
           style={{ top: pos.y + 16, left: pos.x + 16 }}
         >
           {label}

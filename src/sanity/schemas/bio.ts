@@ -12,6 +12,12 @@ export const bio = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "photoCaption",
+      title: "Photo caption",
+      description: "Small text shown below the photo (optional).",
+      type: "string",
+    }),
+    defineField({
       name: "body",
       title: "Body",
       description: "Written bio. Paragraphs will render in order.",

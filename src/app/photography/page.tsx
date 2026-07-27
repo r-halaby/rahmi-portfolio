@@ -47,7 +47,7 @@ export default async function PhotographyPage() {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
-      <header className="fixed inset-x-0 top-0 z-10 flex items-center justify-between px-8 py-6">
+      <header className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
           -BACK
@@ -61,7 +61,7 @@ export default async function PhotographyPage() {
           {page.description}
         </div>
       )}
-      <div className="relative z-10">
+      <div className="pointer-events-none relative z-10">
         <PhotoCanvas photos={displayPhotos} />
       </div>
     </main>

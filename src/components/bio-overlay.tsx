@@ -28,6 +28,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   photoUrl: string | null;
+  photoCaption: string | null;
   body: PortableTextBlock[] | null;
   education: BioEducation[];
   clients: BioClient[];
@@ -38,6 +39,7 @@ export function BioOverlay({
   open,
   onClose,
   photoUrl,
+  photoCaption,
   body,
   education,
   clients,
@@ -63,8 +65,41 @@ export function BioOverlay({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-warm/10 backdrop-blur-md"
           />
+
+          {photoUrl && (
+            <motion.div
+              key="photo-card"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{
+                type: "tween",
+                duration: 0.4,
+                ease: [0.4, 0, 0.2, 1],
+                delay: 0.05,
+              }}
+              style={{ width: "35vw" }}
+              className="pointer-events-none fixed left-0 top-0 z-50 flex h-full flex-col items-center justify-center"
+            >
+              <div style={{ maxWidth: "26vw" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photoUrl}
+                  alt="Rahmi Halaby"
+                  className="block w-full"
+                  loading="eager"
+                />
+                {photoCaption && (
+                  <div className="mt-4 whitespace-pre-line text-xs uppercase tracking-widest text-ink">
+                    {photoCaption}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
           <motion.aside
             key="panel"
             initial={{ x: "100%" }}
@@ -86,16 +121,6 @@ export function BioOverlay({
             </button>
 
             <div className="px-14 py-16">
-              {photoUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photoUrl}
-                  alt="Rahmi Halaby"
-                  className="mb-14 block w-56"
-                  loading="eager"
-                />
-              )}
-
               <Section title="Overview">
                 <div className="mb-6 aspect-video w-full max-w-md">
                   <iframe

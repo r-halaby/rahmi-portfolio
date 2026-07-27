@@ -19,6 +19,7 @@ type Landing = Partial<Record<LandingKey, Image | null>> | null;
 
 type Bio = {
   photo: Image | null;
+  photoCaption: string | null;
   body: PortableTextBlock[] | null;
   education: BioEducation[] | null;
   clients: BioClient[] | null;
@@ -26,7 +27,7 @@ type Bio = {
 } | null;
 
 const NAV: { key: LandingKey; href: string; label: string }[] = [
-  { key: "work", href: "/work", label: "Selected Work" },
+  { key: "work", href: "/work", label: "Experience" },
   { key: "writing", href: "/writing", label: "Writing" },
   { key: "photography", href: "/photography", label: "Photography" },
   { key: "reference", href: "/reference", label: "Inspiration" },
@@ -77,6 +78,7 @@ export default async function Home() {
         <SkillsTrigger skills={SKILL_NAMES} sanitySkills={sanitySkills} />
         <BioTrigger
           photoUrl={bioPhotoUrl(bio?.photo)}
+          photoCaption={bio?.photoCaption ?? null}
           body={bio?.body ?? null}
           education={bio?.education ?? []}
           clients={bio?.clients ?? []}
