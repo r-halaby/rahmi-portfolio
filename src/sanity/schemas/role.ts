@@ -60,15 +60,22 @@ export const role = defineType({
     defineField({
       name: "startDate",
       title: "Start date",
-      type: "date",
-      options: { dateFormat: "YYYY-MM-DD" },
-      validation: (Rule) => Rule.required(),
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+      type: "string",
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/^\d{4}(-\d{2}(-\d{2})?)?$/)
+          .error("Use YYYY, YYYY-MM, or YYYY-MM-DD"),
     }),
     defineField({
       name: "endDate",
       title: "End date",
-      description: "Leave blank for present.",
-      type: "date",
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD. Leave blank for present.",
+      type: "string",
+      validation: (Rule) =>
+        Rule.regex(/^\d{4}(-\d{2}(-\d{2})?)?$/).error(
+          "Use YYYY, YYYY-MM, or YYYY-MM-DD",
+        ),
     }),
     defineField({
       name: "description",
@@ -89,6 +96,98 @@ export const role = defineType({
           fields: [
             defineField({ name: "caption", title: "Caption", type: "string" }),
           ],
+        }),
+      ],
+    }),
+    defineField({
+      name: "titles",
+      title: "Additional titles",
+      description:
+        "Extra positions at the same company. Adding any titles here renders this entry as a grouped company with each title (including the primary one above) as a sub-position.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "position",
+          fields: [
+            defineField({
+              name: "title",
+              title: "Role",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "employmentType",
+              title: "Employment type",
+              type: "string",
+              options: {
+                list: [
+                  { title: "Full-time", value: "full-time" },
+                  { title: "Part-time", value: "part-time" },
+                  { title: "Contract", value: "contract" },
+                  { title: "Freelance", value: "freelance" },
+                  { title: "Internship", value: "internship" },
+                ],
+                layout: "radio",
+              },
+            }),
+            defineField({
+              name: "startDate",
+              title: "Start date",
+              description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+              type: "string",
+              validation: (Rule) =>
+                Rule.required()
+                  .regex(/^\d{4}(-\d{2}(-\d{2})?)?$/)
+                  .error("Use YYYY, YYYY-MM, or YYYY-MM-DD"),
+            }),
+            defineField({
+              name: "endDate",
+              title: "End date",
+              description:
+                "YYYY, YYYY-MM, or YYYY-MM-DD. Leave blank for present.",
+              type: "string",
+              validation: (Rule) =>
+                Rule.regex(/^\d{4}(-\d{2}(-\d{2})?)?$/).error(
+                  "Use YYYY, YYYY-MM, or YYYY-MM-DD",
+                ),
+            }),
+            defineField({
+              name: "description",
+              title: "Description",
+              type: "text",
+              rows: 4,
+            }),
+            defineField({
+              name: "gallery",
+              title: "Gallery",
+              type: "array",
+              of: [
+                defineArrayMember({
+                  type: "image",
+                  options: { hotspot: true },
+                  fields: [
+                    defineField({
+                      name: "caption",
+                      title: "Caption",
+                      type: "string",
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+          preview: {
+            select: {
+              title: "title",
+              start: "startDate",
+              end: "endDate",
+            },
+            prepare: ({ title, start, end }) => ({
+              title,
+              subtitle: `${start ?? ""} – ${end ?? "present"}`,
+            }),
+          },
         }),
       ],
     }),

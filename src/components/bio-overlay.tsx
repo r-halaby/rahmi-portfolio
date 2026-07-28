@@ -138,38 +138,6 @@ export function BioOverlay({
                 )}
               </Section>
 
-              {clients.length > 0 && (
-                <Section title="Clients">
-                  <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-base">
-                    {clients.map((c, i) =>
-                      c.url ? (
-                        <a
-                          key={`${c.name}-${i}`}
-                          href={c.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:opacity-70"
-                        >
-                          {c.name}
-                        </a>
-                      ) : (
-                        <span key={`${c.name}-${i}`}>{c.name}</span>
-                      ),
-                    )}
-                  </div>
-                </Section>
-              )}
-
-              {education.length > 0 && (
-                <Section title="Education">
-                  <div className="grid grid-cols-2 gap-x-10 gap-y-10">
-                    {education.map((e, i) => (
-                      <EducationEntry key={`${e.institution}-${i}`} entry={e} />
-                    ))}
-                  </div>
-                </Section>
-              )}
-
               {experience.length > 0 && (
                 <Section title="Experience">
                   <div className="grid grid-cols-2 gap-x-10 gap-y-10">

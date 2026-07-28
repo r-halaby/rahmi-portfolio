@@ -93,16 +93,16 @@ export function youtubeEmbedUrl(url: string): string | null {
 
 function youtubeIdFromUrl(raw: string): string | null {
   try {
-    const url = new URL(raw);
-    if (url.hostname === "youtu.be") {
-      return url.pathname.slice(1) || null;
+    const url = new URL(raw.trim());
+    const host = url.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") {
+      const id = url.pathname.split("/").filter(Boolean)[0];
+      return id ?? null;
     }
-    if (url.hostname.endsWith("youtube.com")) {
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com") {
       if (url.pathname === "/watch") return url.searchParams.get("v");
-      const shortsMatch = url.pathname.match(/^\/shorts\/([^/]+)/);
-      if (shortsMatch) return shortsMatch[1];
-      const embedMatch = url.pathname.match(/^\/embed\/([^/]+)/);
-      if (embedMatch) return embedMatch[1];
+      const m = url.pathname.match(/^\/(?:shorts|embed|live|v)\/([^/]+)/);
+      if (m) return m[1];
     }
     return null;
   } catch {

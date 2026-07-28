@@ -6,6 +6,7 @@ import {
   fetchArticleReader,
   stripReaderHeaders,
 } from "@/lib/articles";
+import { formatFlexDate } from "@/lib/dates";
 import { client } from "@/sanity/client";
 import { articleByIdQuery } from "@/sanity/queries";
 
@@ -21,16 +22,7 @@ type ArticleDoc = {
 
 export const revalidate = 60 * 60 * 24;
 
-function formatDate(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
+const formatDate = formatFlexDate;
 
 export default async function WritingReaderPage({
   params,
@@ -63,7 +55,7 @@ export default async function WritingReaderPage({
           href="/writing"
           className="text-sm tracking-wide hover:opacity-70"
         >
-          -BACK
+          BACK
         </Link>
       </header>
 

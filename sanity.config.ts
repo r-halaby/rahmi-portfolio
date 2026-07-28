@@ -11,6 +11,8 @@ const SINGLETON_TYPES = new Set([
   "bio",
   "inspiration",
   "photography",
+  "wish",
+  "writing",
 ]);
 const SINGLETON_ACTIONS = new Set([
   "publish",

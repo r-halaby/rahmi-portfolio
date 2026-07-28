@@ -32,14 +32,22 @@ export const volunteer = defineType({
     defineField({
       name: "startDate",
       title: "Start date",
-      type: "date",
-      validation: (Rule) => Rule.required(),
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+      type: "string",
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/^\d{4}(-\d{2}(-\d{2})?)?$/)
+          .error("Use YYYY, YYYY-MM, or YYYY-MM-DD"),
     }),
     defineField({
       name: "endDate",
       title: "End date",
-      description: "Leave blank for present.",
-      type: "date",
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD. Leave blank for present.",
+      type: "string",
+      validation: (Rule) =>
+        Rule.regex(/^\d{4}(-\d{2}(-\d{2})?)?$/).error(
+          "Use YYYY, YYYY-MM, or YYYY-MM-DD",
+        ),
     }),
     defineField({
       name: "description",

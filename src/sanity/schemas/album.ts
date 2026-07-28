@@ -36,6 +36,14 @@ export const album = defineType({
       type: "url",
     }),
     defineField({
+      name: "coverImage",
+      title: "Cover image (override)",
+      description:
+        "Only upload if you want to override the auto-fetched cover.",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
       name: "tags",
       title: "Tags",
       type: "array",

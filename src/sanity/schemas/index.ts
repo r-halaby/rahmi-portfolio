@@ -22,7 +22,9 @@ import { software } from "./software";
 import { tag } from "./tag";
 import { talk } from "./talk";
 import { volunteer } from "./volunteer";
+import { wish } from "./wish";
 import { wishProject } from "./wishProject";
+import { writing } from "./writing";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   tag,
@@ -45,6 +47,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   talk,
   nonprofit,
   future,
+  writing,
+  wish,
   wishProject,
   photo,
   photography,

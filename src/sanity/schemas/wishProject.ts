@@ -19,6 +19,22 @@ export const wishProject = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "projectDate",
+      title: "Project date",
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+      type: "string",
+      validation: (Rule) =>
+        Rule.regex(/^\d{4}(-\d{2}(-\d{2})?)?$/).error(
+          "Use YYYY, YYYY-MM, or YYYY-MM-DD",
+        ),
+    }),
+    defineField({
+      name: "coverImage",
+      title: "Cover image",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
       name: "url",
       title: "URL",
       type: "url",
@@ -37,5 +53,12 @@ export const wishProject = defineType({
       of: [{ type: "reference", to: [{ type: "tag" }] }],
     }),
   ],
-  preview: { select: { title: "title", subtitle: "creator" } },
+  orderings: [
+    {
+      title: "Date, newest first",
+      name: "dateDesc",
+      by: [{ field: "projectDate", direction: "desc" }],
+    },
+  ],
+  preview: { select: { title: "title", subtitle: "creator", media: "coverImage" } },
 });

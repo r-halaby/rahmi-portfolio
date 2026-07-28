@@ -1,24 +1,26 @@
 import Link from "next/link";
 import type { Image } from "sanity";
+import {
+  ExperienceList,
+  type ExperienceRole,
+} from "@/components/experience-list";
+import {
+  daysAgo,
+  durationBetween as flexDuration,
+  formatMonthYear as flexMonthYear,
+  yearFrom,
+} from "@/lib/dates";
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
-import { educationsQuery, rolesQuery, volunteersQuery } from "@/sanity/queries";
+import {
+  bioQuery,
+  educationsQuery,
+  rolesQuery,
+  volunteersQuery,
+  workUpdatedQuery,
+} from "@/sanity/queries";
 
-type GalleryImage = Image & { caption?: string | null };
-
-type Role = {
-  _id: string;
-  title: string;
-  company: string;
-  logo: Image | null;
-  employmentType: string | null;
-  workMode: string | null;
-  location: string | null;
-  startDate: string;
-  endDate: string | null;
-  description: string | null;
-  gallery: GalleryImage[] | null;
-};
+type Role = ExperienceRole;
 
 type Education = {
   _id: string;
@@ -43,37 +45,27 @@ type Volunteer = {
   description: string | null;
 };
 
+type Client = { name: string; url: string | null };
+type BioEducation = {
+  institution: string;
+  program: string | null;
+  location: string | null;
+  activities: string | null;
+  coursework: string | null;
+};
+type BioForWork = {
+  clients: Client[] | null;
+  education: BioEducation[] | null;
+} | null;
+
 export const revalidate = 60;
 
-function formatMonthYear(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+const formatMonthYear = flexMonthYear;
+const durationBetween = flexDuration;
 
 function yearOnly(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const y = iso.slice(0, 4);
-  return /^\d{4}$/.test(y) ? y : null;
-}
-
-function durationBetween(start: string, end: string | null): string | null {
-  if (!start) return null;
-  const s = new Date(start);
-  const e = end ? new Date(end) : new Date();
-  if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return null;
-  const months =
-    (e.getFullYear() - s.getFullYear()) * 12 +
-    (e.getMonth() - s.getMonth()) +
-    1;
-  if (months < 1) return null;
-  const yrs = Math.floor(months / 12);
-  const mos = months % 12;
-  const parts: string[] = [];
-  if (yrs) parts.push(`${yrs} yr${yrs > 1 ? "s" : ""}`);
-  if (mos) parts.push(`${mos} mo${mos > 1 ? "s" : ""}`);
-  return parts.join(" ") || "< 1 mo";
+  const y = yearFrom(iso);
+  return y == null ? null : String(y);
 }
 
 function titleCase(s: string | null): string | null {
@@ -90,39 +82,72 @@ function logoUrl(image: Image | null | undefined) {
 }
 
 export default async function ExperiencePage() {
-  const [roles, educations, volunteers] = await Promise.all([
+  const [roles, educations, volunteers, bio, updatedAt] = await Promise.all([
     client.fetch<Role[]>(rolesQuery).catch(() => [] as Role[]),
     client.fetch<Education[]>(educationsQuery).catch(() => [] as Education[]),
     client.fetch<Volunteer[]>(volunteersQuery).catch(() => [] as Volunteer[]),
+    client.fetch<BioForWork>(bioQuery).catch(() => null),
+    client.fetch<string | null>(workUpdatedQuery).catch(() => null),
   ]);
+  const clients = bio?.clients ?? [];
+  const bioEducations = bio?.education ?? [];
+  const updated = daysAgo(updatedAt);
 
   return (
     <main className="min-h-screen bg-warm text-ink">
       <header className="flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
-          -BACK
+          BACK
         </Link>
       </header>
 
       <div className="mx-auto max-w-4xl px-8 pb-32 pt-6">
-        <h1 className="mb-16 text-4xl">Work</h1>
+        <h1 className="mb-16 text-4xl">
+          Work
+          {updated && (
+            <span className="ml-3 align-middle text-xs font-normal text-ink-muted">
+              (updated {updated})
+            </span>
+          )}
+        </h1>
 
         {roles.length > 0 && (
           <Section title="Experience">
-            <div className="space-y-10">
-              {roles.map((r) => (
-                <RoleEntry key={r._id} entry={r} />
-              ))}
+            <ExperienceList roles={roles} />
+          </Section>
+        )}
+
+        {clients.length > 0 && (
+          <Section title="Clients">
+            <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-base">
+              {clients.map((c, i) =>
+                c.url ? (
+                  <a
+                    key={`${c.name}-${i}`}
+                    href={c.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:opacity-70"
+                  >
+                    {c.name}
+                  </a>
+                ) : (
+                  <span key={`${c.name}-${i}`}>{c.name}</span>
+                ),
+              )}
             </div>
           </Section>
         )}
 
-        {educations.length > 0 && (
+        {(educations.length > 0 || bioEducations.length > 0) && (
           <Section title="Education">
             <div className="space-y-10">
               {educations.map((e) => (
                 <EducationEntry key={e._id} entry={e} />
+              ))}
+              {bioEducations.map((e, i) => (
+                <BioEducationEntry key={`bio-edu-${i}`} entry={e} />
               ))}
             </div>
           </Section>
@@ -185,82 +210,6 @@ function LogoBox({ image, size = 64 }: { image: Image | null; size?: number }) {
   );
 }
 
-function RoleEntry({ entry }: { entry: Role }) {
-  const start = formatMonthYear(entry.startDate);
-  const end = entry.endDate ? formatMonthYear(entry.endDate) : "Present";
-  const duration = durationBetween(entry.startDate, entry.endDate);
-  const companyLine = [entry.company, titleCase(entry.employmentType)]
-    .filter(Boolean)
-    .join(" · ");
-  const dateLine = [
-    [start, end].filter(Boolean).join(" – "),
-    duration,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-  const locLine = [entry.location, titleCase(entry.workMode)]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <div>
-      <LogoBox image={entry.logo} />
-      <div className="mt-3 text-xl leading-tight">{entry.title}</div>
-      <div className="mt-1 space-y-1 text-xs uppercase tracking-wide text-ink-muted">
-        {companyLine && <div>{companyLine}</div>}
-        {dateLine && <div>{dateLine}</div>}
-        {locLine && <div>{locLine}</div>}
-      </div>
-      {entry.description && (
-        <p className="mt-3 text-sm leading-relaxed text-ink">
-          {entry.description}
-        </p>
-      )}
-      {entry.gallery && entry.gallery.length > 0 && (
-        <RoleCarousel images={entry.gallery} />
-      )}
-    </div>
-  );
-}
-
-function RoleCarousel({ images }: { images: GalleryImage[] }) {
-  return (
-    <div className="mt-4 -mx-8 overflow-x-auto px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div
-        className="flex gap-3"
-        style={{ scrollSnapType: "x mandatory" }}
-      >
-        {images.map((img, i) => {
-          const url = img?.asset
-            ? urlFor(img).width(1200).auto("format").url()
-            : null;
-          if (!url) return null;
-          return (
-            <figure
-              key={img.asset?._ref ?? i}
-              className="shrink-0"
-              style={{ scrollSnapAlign: "start" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={img.caption ?? ""}
-                className="block h-64 w-auto object-cover"
-                loading="lazy"
-              />
-              {img.caption && (
-                <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
-                  {img.caption}
-                </figcaption>
-              )}
-            </figure>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function EducationEntry({ entry }: { entry: Education }) {
   const startY = yearOnly(entry.startDate);
   const endY = yearOnly(entry.endDate);
@@ -275,6 +224,38 @@ function EducationEntry({ entry }: { entry: Education }) {
       <div className="mt-1 space-y-1 text-xs uppercase tracking-wide text-ink-muted">
         {degreeLine && <div>{degreeLine}</div>}
         {yearLine && <div>{yearLine}</div>}
+      </div>
+      {(entry.activities || entry.coursework) && (
+        <div className="mt-3 space-y-2 text-sm leading-relaxed text-ink">
+          {entry.activities && (
+            <div>
+              <span className="text-xs uppercase tracking-wide text-ink-muted">
+                Activities and Societies:{" "}
+              </span>
+              {entry.activities}
+            </div>
+          )}
+          {entry.coursework && (
+            <div>
+              <span className="text-xs uppercase tracking-wide text-ink-muted">
+                Coursework Included:{" "}
+              </span>
+              {entry.coursework}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BioEducationEntry({ entry }: { entry: BioEducation }) {
+  return (
+    <div>
+      <div className="text-xl leading-tight">{entry.institution}</div>
+      <div className="mt-1 space-y-1 text-xs uppercase tracking-wide text-ink-muted">
+        {entry.program && <div>{entry.program}</div>}
+        {entry.location && <div>{entry.location}</div>}
       </div>
       {(entry.activities || entry.coursework) && (
         <div className="mt-3 space-y-2 text-sm leading-relaxed text-ink">

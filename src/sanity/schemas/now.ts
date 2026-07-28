@@ -16,8 +16,12 @@ export const now = defineType({
     defineField({
       name: "updatedAt",
       title: "Updated at",
-      type: "date",
-      validation: (Rule) => Rule.required(),
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+      type: "string",
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/^\d{4}(-\d{2}(-\d{2})?)?$/)
+          .error("Use YYYY, YYYY-MM, or YYYY-MM-DD"),
     }),
   ],
   preview: {

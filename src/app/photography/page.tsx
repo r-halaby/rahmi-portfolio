@@ -50,7 +50,7 @@ export default async function PhotographyPage() {
       <header className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
-          -BACK
+          BACK
         </Link>
       </header>
       {page?.description && (

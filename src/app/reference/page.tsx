@@ -1,9 +1,13 @@
 import Link from "next/link";
+import type { Image } from "sanity";
 import { CoverTile } from "@/components/cover-tile";
+import { urlFor } from "@/sanity/image";
 import { client } from "@/sanity/client";
+import { daysAgo } from "@/lib/dates";
 import {
   albumsQuery,
   booksQuery,
+  inspirationUpdatedQuery,
   mixesQuery,
   moviesQuery,
   nonprofitsQuery,
@@ -35,6 +39,7 @@ type Book = {
   yearRead: number | null;
   annotation: string | null;
   url: string | null;
+  coverImage: Image | null;
 };
 
 type Album = {
@@ -44,6 +49,7 @@ type Album = {
   year: number | null;
   annotation: string | null;
   url: string | null;
+  coverImage: Image | null;
 };
 
 type Software = {
@@ -87,35 +93,77 @@ type Intros = {
 export const revalidate = 60;
 
 export default async function ReferencePage() {
-  const [intros, movies, books, albums, mixes, software, talks, nonprofits] =
-    await Promise.all([
-      client.fetch<Intros>(referenceIntrosQuery).catch(() => null),
-      client.fetch<Movie[]>(moviesQuery).catch(() => [] as Movie[]),
-      client.fetch<Book[]>(booksQuery).catch(() => [] as Book[]),
-      client.fetch<Album[]>(albumsQuery).catch(() => [] as Album[]),
-      client.fetch<Mix[]>(mixesQuery).catch(() => [] as Mix[]),
-      client.fetch<Software[]>(softwareQuery).catch(() => [] as Software[]),
-      client.fetch<Talk[]>(talksQuery).catch(() => [] as Talk[]),
-      client.fetch<Nonprofit[]>(nonprofitsQuery).catch(() => [] as Nonprofit[]),
-    ]);
+  const [
+    intros,
+    movies,
+    books,
+    albums,
+    mixes,
+    software,
+    talks,
+    nonprofits,
+    updatedAt,
+  ] = await Promise.all([
+    client.fetch<Intros>(referenceIntrosQuery).catch(() => null),
+    client.fetch<Movie[]>(moviesQuery).catch(() => [] as Movie[]),
+    client.fetch<Book[]>(booksQuery).catch(() => [] as Book[]),
+    client.fetch<Album[]>(albumsQuery).catch(() => [] as Album[]),
+    client.fetch<Mix[]>(mixesQuery).catch(() => [] as Mix[]),
+    client.fetch<Software[]>(softwareQuery).catch(() => [] as Software[]),
+    client.fetch<Talk[]>(talksQuery).catch(() => [] as Talk[]),
+    client.fetch<Nonprofit[]>(nonprofitsQuery).catch(() => [] as Nonprofit[]),
+    client.fetch<string | null>(inspirationUpdatedQuery).catch(() => null),
+  ]);
+  const updated = daysAgo(updatedAt);
 
-  const [bookCovers, albumCovers, movieCovers] = await Promise.all([
+  const [bookCoversFetched, albumCoversFetched, movieCovers] = await Promise.all([
     Promise.all(books.map((b) => bookCover(b.title, b.author))),
     Promise.all(albums.map((a) => albumCover(a.title, a.artist))),
     Promise.all(movies.map((m) => movieCover(m.title, m.year))),
   ]);
+
+  const bookCovers = books.map((b, i) => {
+    if (b.coverImage?.asset) {
+      return urlFor(b.coverImage)
+        .width(400)
+        .height(600)
+        .fit("crop")
+        .auto("format")
+        .url();
+    }
+    return bookCoversFetched[i];
+  });
+
+  const albumCovers = albums.map((a, i) => {
+    if (a.coverImage?.asset) {
+      return urlFor(a.coverImage)
+        .width(600)
+        .height(600)
+        .fit("crop")
+        .auto("format")
+        .url();
+    }
+    return albumCoversFetched[i];
+  });
 
   return (
     <main className="min-h-screen bg-paper text-ink">
       <header className="flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
-          -BACK
+          BACK
         </Link>
       </header>
 
       <div className="mx-auto max-w-5xl px-8 pb-32 pt-8">
-        <h1 className="mb-16 text-4xl">Inspiration</h1>
+        <h1 className="mb-16 text-4xl">
+          Inspiration
+          {updated && (
+            <span className="ml-3 align-middle text-xs font-normal text-ink-muted">
+              (updated {updated})
+            </span>
+          )}
+        </h1>
 
         <Section title="Books" intro={intros?.booksIntro} empty={books.length === 0}>
           <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 md:grid-cols-6">
@@ -244,7 +292,7 @@ function Section({
         {title}
       </h2>
       {intro && (
-        <p className="mb-6 max-w-prose text-sm leading-relaxed text-ink-muted">
+        <p className="mb-6 text-sm leading-relaxed text-ink-muted">
           {intro}
         </p>
       )}

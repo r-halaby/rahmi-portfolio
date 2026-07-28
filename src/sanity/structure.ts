@@ -6,6 +6,8 @@ const SINGLETON_TYPES = new Set([
   "bio",
   "inspiration",
   "photography",
+  "wish",
+  "writing",
 ]);
 
 export const structure: StructureResolver = (S) =>
@@ -50,6 +52,21 @@ export const structure: StructureResolver = (S) =>
             .id("photography")
             .schemaType("photography")
             .documentId("photography"),
+        ),
+      S.listItem()
+        .title("Writing (page)")
+        .id("writing")
+        .child(
+          S.editor()
+            .id("writing")
+            .schemaType("writing")
+            .documentId("writing"),
+        ),
+      S.listItem()
+        .title("Projects I Wish I Made")
+        .id("wish")
+        .child(
+          S.editor().id("wish").schemaType("wish").documentId("wish"),
         ),
       S.divider(),
       ...S.documentTypeListItems().filter(

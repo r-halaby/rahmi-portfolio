@@ -1,3 +1,23 @@
+export const workUpdatedQuery = /* groq */ `
+  *[_type in ["role","education","volunteer"] && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+`;
+
+export const writingUpdatedQuery = /* groq */ `
+  *[_type == "article" && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+`;
+
+export const wishUpdatedQuery = /* groq */ `
+  *[_type == "wishProject" && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+`;
+
+export const inspirationUpdatedQuery = /* groq */ `
+  *[_type in ["book","movie","album","mix","software","talk","nonprofit"] && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+`;
+
+export const photographyUpdatedQuery = /* groq */ `
+  *[_type == "photo" && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+`;
+
 export const landingQuery = /* groq */ `
   *[_type == "landing" && _id == "landing"][0] {
     work, writing, photography, reference, futures, wish
@@ -13,10 +33,26 @@ export const skillsQuery = /* groq */ `
   }
 `;
 
+export const wishPageQuery = /* groq */ `
+  *[_type == "wish" && _id == "wish"][0] {
+    description
+  }
+`;
+
+export const wishProjectsQuery = /* groq */ `
+  *[_type == "wishProject"] | order(coalesce(projectDate, "") desc, title asc) {
+    _id, title, creator, url, projectDate, coverImage, annotation
+  }
+`;
+
 export const rolesQuery = /* groq */ `
   *[_type == "role"] | order(coalesce(endDate, "9999-12-31") desc, startDate desc) {
     _id, title, company, logo, employmentType, workMode, location, startDate, endDate, description,
-    gallery[] { ..., "caption": caption }
+    gallery[] { ..., "caption": caption },
+    titles[] {
+      title, employmentType, startDate, endDate, description,
+      gallery[] { ..., "caption": caption }
+    }
   }
 `;
 
@@ -41,6 +77,12 @@ export const articlesArchiveQuery = /* groq */ `
 export const articleByIdQuery = /* groq */ `
   *[_type == "article" && _id == $id][0] {
     _id, title, publication, category, url, publishedAt, excerpt
+  }
+`;
+
+export const writingPageQuery = /* groq */ `
+  *[_type == "writing" && _id == "writing"][0] {
+    description
   }
 `;
 
@@ -109,13 +151,13 @@ export const moviesQuery = /* groq */ `
 
 export const booksQuery = /* groq */ `
   *[_type == "book"] | order(coalesce(yearRead, 0) desc, title asc) {
-    _id, title, author, yearRead, annotation, url
+    _id, title, author, yearRead, annotation, url, coverImage
   }
 `;
 
 export const albumsQuery = /* groq */ `
   *[_type == "album"] | order(coalesce(year, 0) desc, title asc) {
-    _id, title, artist, year, annotation, url
+    _id, title, artist, year, annotation, url, coverImage
   }
 `;
 

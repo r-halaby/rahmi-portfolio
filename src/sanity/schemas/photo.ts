@@ -20,7 +20,12 @@ export const photo = defineType({
     defineField({
       name: "dateTaken",
       title: "Date taken",
-      type: "date",
+      description: "YYYY, YYYY-MM, or YYYY-MM-DD",
+      type: "string",
+      validation: (Rule) =>
+        Rule.regex(/^\d{4}(-\d{2}(-\d{2})?)?$/).error(
+          "Use YYYY, YYYY-MM, or YYYY-MM-DD",
+        ),
     }),
     defineField({
       name: "series",

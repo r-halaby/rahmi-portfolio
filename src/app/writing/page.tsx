@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { fetchArticleMeta } from "@/lib/articles";
+import { daysAgo, formatMonthYear as flexMonthYear } from "@/lib/dates";
 import { client } from "@/sanity/client";
-import { articlesArchiveQuery, publicationsQuery } from "@/sanity/queries";
+import {
+  articlesArchiveQuery,
+  publicationsQuery,
+  writingPageQuery,
+  writingUpdatedQuery,
+} from "@/sanity/queries";
 
 type ArticleDoc = {
   _id: string;
@@ -33,12 +39,7 @@ export const revalidate = 60;
 
 const OTHER = "Other";
 
-function formatMonthYear(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+const formatMonthYear = flexMonthYear;
 
 function groupByPublication(rows: ArticleRow[]): Map<string, ArticleRow[]> {
   const groups = new Map<string, ArticleRow[]>();
@@ -58,15 +59,20 @@ function groupByPublication(rows: ArticleRow[]): Map<string, ArticleRow[]> {
   return groups;
 }
 
+type WritingPageDoc = { description: string | null } | null;
+
 export default async function WritingPage() {
-  const [docs, publications] = await Promise.all([
+  const [docs, publications, page, updatedAt] = await Promise.all([
     client
       .fetch<ArticleDoc[]>(articlesArchiveQuery)
       .catch(() => [] as ArticleDoc[]),
     client
       .fetch<PublicationDoc[]>(publicationsQuery)
       .catch(() => [] as PublicationDoc[]),
+    client.fetch<WritingPageDoc>(writingPageQuery).catch(() => null),
+    client.fetch<string | null>(writingUpdatedQuery).catch(() => null),
   ]);
+  const updated = daysAgo(updatedAt);
 
   const rows: ArticleRow[] = await Promise.all(
     docs.map(async (d) => {
@@ -97,12 +103,24 @@ export default async function WritingPage() {
       <header className="flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
         <Link href="/" className="text-sm tracking-wide hover:opacity-70">
-          -BACK
+          BACK
         </Link>
       </header>
 
       <div className="mx-auto max-w-5xl px-8 pb-32 pt-6">
-        <h1 className="mb-16 text-4xl">Writing</h1>
+        <h1 className="mb-6 text-4xl">
+          Writing
+          {updated && (
+            <span className="ml-3 align-middle text-xs font-normal text-ink-muted">
+              (updated {updated})
+            </span>
+          )}
+        </h1>
+        {page?.description && (
+          <p className="mb-16 text-xs leading-relaxed text-ink-muted">
+            {page.description}
+          </p>
+        )}
 
         {rows.length === 0 ? (
           <p className="text-sm text-ink-muted">—</p>
