@@ -19,6 +19,7 @@ export const future = defineType({
       options: {
         list: [
           { title: "Works in Progress", value: "active" },
+          { title: "Shipped", value: "shipped" },
           { title: "Backlog", value: "aspirational" },
         ],
         layout: "radio",
