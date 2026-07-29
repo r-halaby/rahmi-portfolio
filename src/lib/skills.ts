@@ -5,7 +5,7 @@ export const SKILL_NAMES = [
   "Site Strategy/Execution",
   "Short Form Video",
   "Service-Consumer Scale",
-  "Biz Dev",
+  "Business Development",
   "AI Tools",
   "Photography",
   "Motion",

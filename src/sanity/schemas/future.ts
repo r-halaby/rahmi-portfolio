@@ -2,13 +2,14 @@ import { defineType, defineField } from "sanity";
 
 export const future = defineType({
   name: "future",
-  title: "Future",
+  title: "Playspace project",
   type: "document",
   fields: [
     defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
+      name: "url",
+      title: "URL",
+      description: "Paste the link. Title and image are auto-fetched.",
+      type: "url",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -17,25 +18,49 @@ export const future = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Now Building", value: "active" },
-          { title: "Want to Build", value: "aspirational" },
+          { title: "Works in Progress", value: "active" },
+          { title: "Backlog", value: "aspirational" },
         ],
         layout: "radio",
       },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "description",
-      title: "Description",
-      type: "text",
-      rows: 3,
-      validation: (Rule) => Rule.required(),
+      name: "title",
+      title: "Title (override)",
+      description: "Only set if the auto-fetched title is wrong.",
+      type: "string",
     }),
     defineField({
-      name: "url",
-      title: "URL",
-      type: "url",
+      name: "coverImage",
+      title: "Cover image (override)",
+      description: "Only upload if you want to override the auto-fetched image.",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "description",
+      title: "Description",
+      description: "Short blurb shown under the card.",
+      type: "text",
+      rows: 3,
     }),
   ],
-  preview: { select: { title: "title", subtitle: "status" } },
+  orderings: [
+    {
+      title: "Status then title",
+      name: "statusTitle",
+      by: [
+        { field: "status", direction: "asc" },
+        { field: "title", direction: "asc" },
+      ],
+    },
+  ],
+  preview: {
+    select: { title: "title", subtitle: "status", url: "url" },
+    prepare: ({ title, subtitle, url }) => ({
+      title: title || url || "Untitled",
+      subtitle,
+    }),
+  },
 });

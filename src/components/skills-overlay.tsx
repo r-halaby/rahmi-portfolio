@@ -63,9 +63,8 @@ export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
                     <motion.button
                       type="button"
                       onClick={() => onSelect(s)}
-                      whileHover={{ scale: 1.2, fontWeight: 700 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                      style={{ transformOrigin: "right center" }}
+                      whileHover={{ fontWeight: 700 }}
+                      transition={{ duration: 0.15 }}
                       className="text-right"
                     >
                       {s}

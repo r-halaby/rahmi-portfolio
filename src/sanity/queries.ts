@@ -33,6 +33,12 @@ export const skillsQuery = /* groq */ `
   }
 `;
 
+export const futuresQuery = /* groq */ `
+  *[_type == "future"] | order(title asc) {
+    _id, title, status, url, coverImage, description
+  }
+`;
+
 export const wishPageQuery = /* groq */ `
   *[_type == "wish" && _id == "wish"][0] {
     description

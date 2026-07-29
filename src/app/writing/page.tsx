@@ -155,7 +155,7 @@ function PublicationSection({
   rows: ArticleRow[];
 }) {
   return (
-    <section className="mb-20">
+    <section className="group mb-20">
       <h2 className="mb-3 border-b border-hairline pb-2 text-6xl leading-none">
         {url ? (
           <a
@@ -171,9 +171,11 @@ function PublicationSection({
         )}
       </h2>
       {description && (
-        <p className="mb-8 text-sm leading-relaxed text-ink-muted">
-          {description}
-        </p>
+        <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-out group-hover:mb-8 group-hover:max-h-96 group-hover:opacity-100">
+          <p className="text-sm leading-relaxed text-ink-muted">
+            {description}
+          </p>
+        </div>
       )}
       <ul>
         {rows.map((r) => (

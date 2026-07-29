@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   SkillDetailModal,
@@ -7,12 +8,18 @@ import {
 } from "./skill-detail-modal";
 import { SkillsOverlay } from "./skills-overlay";
 
+const SKILL_ROUTES: Record<string, string> = {
+  Writing: "/writing",
+  Photography: "/photography",
+};
+
 type Props = {
   skills: string[];
   sanitySkills: SanitySkill[];
 };
 
 export function SkillsTrigger({ skills, sanitySkills }: Props) {
+  const router = useRouter();
   const [listOpen, setListOpen] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
 
@@ -39,7 +46,15 @@ export function SkillsTrigger({ skills, sanitySkills }: Props) {
         open={listOpen}
         onClose={() => setListOpen(false)}
         skills={skills}
-        onSelect={(name) => setSelectedName(name)}
+        onSelect={(name) => {
+          const route = SKILL_ROUTES[name];
+          if (route) {
+            setListOpen(false);
+            router.push(route);
+            return;
+          }
+          setSelectedName(name);
+        }}
       />
       <SkillDetailModal
         open={selectedName !== null}

@@ -81,29 +81,38 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
                 )}
 
                 {skill?.gallery && skill.gallery.length > 0 && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {skill.gallery.map((img, i) => {
-                      const url = img.asset
-                        ? urlFor(img).width(800).auto("format").url()
-                        : null;
-                      if (!url) return null;
-                      return (
-                        <figure key={`${img.asset?._ref ?? i}`}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={url}
-                            alt={img.caption ?? ""}
-                            className="block w-full"
-                            loading="lazy"
-                          />
-                          {img.caption && (
-                            <figcaption className="mt-1 text-xs text-ink-muted">
-                              {img.caption}
-                            </figcaption>
-                          )}
-                        </figure>
-                      );
-                    })}
+                  <div className="-mx-10 overflow-x-auto px-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div
+                      className="flex gap-3"
+                      style={{ scrollSnapType: "x mandatory" }}
+                    >
+                      {skill.gallery.map((img, i) => {
+                        const url = img.asset
+                          ? urlFor(img).width(1200).auto("format").url()
+                          : null;
+                        if (!url) return null;
+                        return (
+                          <figure
+                            key={img.asset?._ref ?? i}
+                            className="shrink-0"
+                            style={{ scrollSnapAlign: "start" }}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={img.caption ?? ""}
+                              className="block h-64 w-auto object-cover"
+                              loading="lazy"
+                            />
+                            {img.caption && (
+                              <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+                                {img.caption}
+                              </figcaption>
+                            )}
+                          </figure>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
