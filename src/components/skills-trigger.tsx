@@ -26,7 +26,7 @@ export function SkillsTrigger({ skills, sanitySkills }: Props) {
   const skillMap = useMemo(() => {
     const map = new Map<string, SanitySkill>();
     for (const s of sanitySkills) {
-      if (s?.name) map.set(s.name, s);
+      if (s?.name && !map.has(s.name)) map.set(s.name, s);
     }
     return map;
   }, [sanitySkills]);

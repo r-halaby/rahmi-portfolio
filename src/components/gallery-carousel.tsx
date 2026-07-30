@@ -1,4 +1,5 @@
 import type { Image } from "sanity";
+import { StoryVideoPlayer } from "@/components/story-video-player";
 import { resolveEmbed } from "@/lib/covers";
 import { urlFor } from "@/sanity/image";
 
@@ -55,16 +56,12 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
       : undefined;
     return (
       <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video
+        <StoryVideoPlayer
           src={videoUrl}
           poster={posterUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="block h-64 w-auto"
+          compact
+          emailTo="rahmihalaby@gmail.com"
+          emailSubject="I better just give you the gig now!"
         />
         {item.caption && (
           <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
@@ -97,15 +94,21 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
       );
     }
     if (resolved.kind === "instagram") {
-      const width = 320;
-      const height = 400;
-      const iframeHeight = 720;
-      const topOffset = -60;
+      const containerWidth = 144;
+      const containerHeight = 256;
+      const nativeIframeWidth = 328;
+      const nativeIframeHeight = 720;
+      const scale = containerWidth / nativeIframeWidth;
+      const topShift = -Math.round(60 * scale);
       return (
         <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
           <div
-            style={{ width, height, overflow: "hidden" }}
-            className="relative"
+            style={{
+              width: containerWidth,
+              height: containerHeight,
+              overflow: "hidden",
+              position: "relative",
+            }}
           >
             <iframe
               src={resolved.src}
@@ -114,10 +117,13 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
               allowFullScreen
               scrolling="no"
               style={{
-                display: "block",
-                width,
-                height: iframeHeight,
-                marginTop: topOffset,
+                position: "absolute",
+                top: topShift,
+                left: 0,
+                width: nativeIframeWidth,
+                height: nativeIframeHeight,
+                transformOrigin: "top left",
+                transform: `scale(${scale})`,
                 border: 0,
               }}
             />

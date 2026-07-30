@@ -140,7 +140,9 @@ export function resolveEmbed(url: string): ResolvedEmbed | null {
     }
 
     if (host === "instagram.com") {
-      const m = parsed.pathname.match(/^\/(?:p|reel|reels|tv)\/([^/]+)/);
+      const m = parsed.pathname.match(
+        /^(?:\/[^/]+)?\/(?:p|reel|reels|tv)\/([^/]+)/,
+      );
       if (m) {
         return {
           kind: "instagram",

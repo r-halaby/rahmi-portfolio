@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import type { Image } from "sanity";
 import { ExpandableSection } from "@/components/expandable-section";
+import { StoryVideoPlayer } from "@/components/story-video-player";
 import { resolveEmbed } from "@/lib/covers";
 import { urlFor } from "@/sanity/image";
 
@@ -138,16 +139,12 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
       : undefined;
     return (
       <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video
+        <StoryVideoPlayer
           src={videoUrl}
           poster={posterUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="block h-64 w-auto"
+          compact
+          emailTo="rahmihalaby@gmail.com"
+          emailSubject="I better just give you the gig now!"
         />
         {item.caption && (
           <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
@@ -193,6 +190,50 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
         >
           Open link
         </a>
+        {item.caption && (
+          <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  if (resolved.kind === "instagram") {
+    const containerWidth = 144;
+    const containerHeight = 256;
+    const nativeIframeWidth = 328;
+    const nativeIframeHeight = 720;
+    const scale = containerWidth / nativeIframeWidth;
+    const topShift = -Math.round(60 * scale);
+    return (
+      <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
+        <div
+          style={{
+            width: containerWidth,
+            height: containerHeight,
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <iframe
+            src={resolved.src}
+            title={item.caption ?? "Instagram embed"}
+            allow="autoplay; encrypted-media; picture-in-picture; clipboard-write"
+            allowFullScreen
+            scrolling="no"
+            style={{
+              position: "absolute",
+              top: topShift,
+              left: 0,
+              width: nativeIframeWidth,
+              height: nativeIframeHeight,
+              transformOrigin: "top left",
+              transform: `scale(${scale})`,
+              border: 0,
+            }}
+          />
+        </div>
         {item.caption && (
           <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
             {item.caption}

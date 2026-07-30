@@ -25,7 +25,7 @@ export const landingQuery = /* groq */ `
 `;
 
 export const skillsQuery = /* groq */ `
-  *[_type == "skill"] {
+  *[_type == "skill"] | order(_updatedAt desc) {
     _id,
     name,
     body,
