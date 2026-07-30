@@ -124,6 +124,9 @@ export const bioQuery = /* groq */ `
     photo,
     photoCaption,
     body,
+    linkedinUrl,
+    instagramUrl,
+    email,
     education[] {
       institution, program, location, activities, coursework
     },

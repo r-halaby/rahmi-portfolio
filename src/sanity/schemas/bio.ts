@@ -103,6 +103,22 @@ export const bio = defineType({
       ],
     }),
     defineField({
+      name: "linkedinUrl",
+      title: "LinkedIn URL",
+      type: "url",
+    }),
+    defineField({
+      name: "instagramUrl",
+      title: "Instagram URL",
+      type: "url",
+    }),
+    defineField({
+      name: "email",
+      title: "Email",
+      description: "Used for the mailto: link in the side panel.",
+      type: "string",
+    }),
+    defineField({
       name: "experience",
       title: "Experience",
       type: "array",

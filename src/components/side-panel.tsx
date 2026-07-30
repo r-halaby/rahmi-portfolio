@@ -42,14 +42,21 @@ type Wallpaper = {
   thumbUrl: string;
 };
 
+export type Socials = {
+  linkedin: string | null;
+  instagram: string | null;
+  email: string | null;
+};
+
 type Props = {
   wallpapers: Wallpaper[];
   backlog: Backlog;
+  socials: Socials;
 };
 
 const CREATED_LOCATION = "Index Greenpoint";
 
-export function SidePanel({ wallpapers, backlog }: Props) {
+export function SidePanel({ wallpapers, backlog, socials }: Props) {
   const [active, setActive] = useState<PanelKey | null>(null);
   const [hovered, setHovered] = useState(false);
   const tr = useT();
@@ -73,55 +80,86 @@ export function SidePanel({ wallpapers, backlog }: Props) {
         data-side-rail
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="fixed right-0 top-1/2 z-40 flex -translate-y-1/2 items-center py-6 pl-6 pr-3 text-ink"
+        className="fixed inset-y-0 right-0 z-40 flex flex-col items-center justify-between py-8 pl-6 pr-3 text-ink"
       >
-        <span
-          aria-hidden
-          className={`absolute right-1.5 top-1/2 h-14 w-[3px] -translate-y-1/2 bg-current transition-opacity duration-200 ${
-            expanded ? "opacity-0" : "opacity-60"
-          }`}
-        />
+        <span aria-hidden className="w-0" />
+
+        <div className="relative flex items-center">
+          <span
+            aria-hidden
+            className={`absolute right-0 top-1/2 h-14 w-[3px] -translate-y-1/2 bg-current transition-opacity duration-200 ${
+              expanded ? "opacity-0" : "opacity-60"
+            }`}
+          />
+          <nav
+            aria-label="Site preferences"
+            className={`flex flex-col items-center gap-4 transition-opacity duration-200 ${
+              expanded ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          >
+            <RailButton
+              label={tr("panel.backlog")}
+              active={active === "backlog"}
+              onClick={() => toggle("backlog")}
+            >
+              <BacklogIcon />
+            </RailButton>
+            <RailButton
+              label={tr("panel.language")}
+              active={active === "language"}
+              onClick={() => toggle("language")}
+            >
+              <LangIcon />
+            </RailButton>
+            <RailButton
+              label={tr("panel.style")}
+              active={active === "style"}
+              onClick={() => toggle("style")}
+            >
+              <StyleIcon />
+            </RailButton>
+            <RailButton
+              label={tr("panel.wallpaper")}
+              active={active === "wallpaper"}
+              onClick={() => toggle("wallpaper")}
+            >
+              <WallpaperIcon />
+            </RailButton>
+            <RailButton
+              label={tr("panel.cursor")}
+              active={active === "cursor"}
+              onClick={() => toggle("cursor")}
+            >
+              <CursorIcon />
+            </RailButton>
+          </nav>
+        </div>
+
         <nav
-          aria-label="Site preferences"
+          aria-label="Contact"
           className={`flex flex-col items-center gap-4 transition-opacity duration-200 ${
             expanded ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
         >
-        <RailButton
-          label={tr("panel.backlog")}
-          active={active === "backlog"}
-          onClick={() => toggle("backlog")}
-        >
-          <BacklogIcon />
-        </RailButton>
-        <RailButton
-          label={tr("panel.language")}
-          active={active === "language"}
-          onClick={() => toggle("language")}
-        >
-          <LangIcon />
-        </RailButton>
-        <RailButton
-          label={tr("panel.style")}
-          active={active === "style"}
-          onClick={() => toggle("style")}
-        >
-          <StyleIcon />
-        </RailButton>
-        <RailButton
-          label={tr("panel.wallpaper")}
-          active={active === "wallpaper"}
-          onClick={() => toggle("wallpaper")}
-        >
-          <WallpaperIcon />
-        </RailButton>
-        <RailButton
-          label={tr("panel.cursor")}
-          active={active === "cursor"}
-          onClick={() => toggle("cursor")}
-        >
-          <CursorIcon />
-        </RailButton>
+          {socials.linkedin && (
+            <RailLink href={socials.linkedin} label="LinkedIn">
+              <LinkedInIcon />
+            </RailLink>
+          )}
+          {socials.instagram && (
+            <RailLink href={socials.instagram} label="Instagram">
+              <InstagramIcon />
+            </RailLink>
+          )}
+          {socials.email && (
+            <RailLink
+              href={`mailto:${socials.email}`}
+              label="Email"
+              external={false}
+            >
+              <EmailIcon />
+            </RailLink>
+          )}
         </nav>
       </div>
 
@@ -183,6 +221,30 @@ function RailButton({
     >
       {children}
     </button>
+  );
+}
+
+function RailLink({
+  href,
+  label,
+  external = true,
+  children,
+}: {
+  href: string;
+  label: string;
+  external?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      aria-label={label}
+      className="flex h-9 w-9 items-center justify-center opacity-60 transition-opacity hover:opacity-100"
+    >
+      {children}
+    </a>
   );
 }
 
@@ -584,6 +646,37 @@ function CursorIcon() {
   return (
     <svg {...iconProps}>
       <path d="M5 3l6 16 2-7 7-2z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="8" y1="10" x2="8" y2="17" />
+      <circle cx="8" cy="7" r="0.8" fill="currentColor" />
+      <path d="M12 17v-4a2.5 2.5 0 0 1 5 0v4" />
+      <line x1="12" y1="10" x2="12" y2="17" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
+    </svg>
+  );
+}
+
+function EmailIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="3" y="5" width="18" height="14" rx="1" />
+      <path d="M3 7l9 6 9-6" />
     </svg>
   );
 }

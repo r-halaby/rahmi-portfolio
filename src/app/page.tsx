@@ -29,6 +29,9 @@ type Bio = {
   photo: Image | null;
   photoCaption: string | null;
   body: PortableTextBlock[] | null;
+  linkedinUrl: string | null;
+  instagramUrl: string | null;
+  email: string | null;
   education: BioEducation[] | null;
   clients: BioClient[] | null;
   experience: BioExperience[] | null;
@@ -133,7 +136,15 @@ export default async function Home() {
         />
       </div>
     </main>
-    <SidePanel wallpapers={wallpapers} backlog={backlog} />
+    <SidePanel
+      wallpapers={wallpapers}
+      backlog={backlog}
+      socials={{
+        linkedin: bio?.linkedinUrl ?? null,
+        instagram: bio?.instagramUrl ?? null,
+        email: bio?.email ?? null,
+      }}
+    />
     </>
   );
 }
