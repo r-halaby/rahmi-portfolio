@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   open: boolean;
@@ -11,6 +12,9 @@ type Props = {
 };
 
 export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -20,7 +24,9 @@ export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -39,6 +45,7 @@ export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            data-skills-overlay
             className="fixed inset-0 z-50 overflow-y-auto bg-warm text-ink sm:left-[calc(50%+24rem)] sm:bg-transparent"
             aria-modal="true"
             role="dialog"
@@ -75,6 +82,7 @@ export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

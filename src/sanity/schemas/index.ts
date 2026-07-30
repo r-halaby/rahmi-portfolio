@@ -22,6 +22,7 @@ import { software } from "./software";
 import { tag } from "./tag";
 import { talk } from "./talk";
 import { volunteer } from "./volunteer";
+import { wallpapers } from "./wallpaper";
 import { welcome } from "./welcome";
 import { wish } from "./wish";
 import { wishProject } from "./wishProject";
@@ -52,6 +53,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   wish,
   wishProject,
   welcome,
+  wallpapers,
   photo,
   photography,
 ];

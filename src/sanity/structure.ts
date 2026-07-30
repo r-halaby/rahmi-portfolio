@@ -9,6 +9,7 @@ const SINGLETON_TYPES = new Set([
   "wish",
   "writing",
   "welcome",
+  "wallpapers",
 ]);
 
 export const structure: StructureResolver = (S) =>
@@ -77,6 +78,15 @@ export const structure: StructureResolver = (S) =>
             .id("welcome")
             .schemaType("welcome")
             .documentId("welcome"),
+        ),
+      S.listItem()
+        .title("Wallpapers")
+        .id("wallpapers")
+        .child(
+          S.editor()
+            .id("wallpapers")
+            .schemaType("wallpapers")
+            .documentId("wallpapers"),
         ),
       S.divider(),
       ...S.documentTypeListItems().filter(

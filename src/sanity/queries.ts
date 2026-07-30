@@ -99,6 +99,14 @@ export const welcomeQuery = /* groq */ `
   }
 `;
 
+export const wallpapersQuery = /* groq */ `
+  *[_type == "wallpapers" && _id == "wallpapers"][0].items[] {
+    _key,
+    title,
+    asset
+  }
+`;
+
 export const writingPageQuery = /* groq */ `
   *[_type == "writing" && _id == "writing"][0] {
     description

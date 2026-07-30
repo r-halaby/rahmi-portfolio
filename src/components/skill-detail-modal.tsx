@@ -2,7 +2,8 @@
 
 import { PortableText, type PortableTextBlock } from "@portabletext/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Image } from "sanity";
 import { ExpandableSection } from "@/components/expandable-section";
 import { resolveEmbed } from "@/lib/covers";
@@ -41,6 +42,9 @@ type Props = {
 };
 
 export function SkillDetailModal({ open, onClose, name, skill }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -50,7 +54,9 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -119,7 +125,8 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 
