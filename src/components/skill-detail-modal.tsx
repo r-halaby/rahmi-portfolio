@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import type { Image } from "sanity";
 import { ExpandableSection } from "@/components/expandable-section";
-import { StoryVideoPlayer } from "@/components/story-video-player";
 import { resolveEmbed } from "@/lib/covers";
 import { urlFor } from "@/sanity/image";
 
@@ -139,12 +138,16 @@ function GalleryFigure({ item }: { item: GalleryItem }) {
       : undefined;
     return (
       <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
-        <StoryVideoPlayer
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video
           src={videoUrl}
           poster={posterUrl}
-          compact
-          emailTo="rahmihalaby@gmail.com"
-          emailSubject="I better just give you the gig now!"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="block h-64 w-auto"
         />
         {item.caption && (
           <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
