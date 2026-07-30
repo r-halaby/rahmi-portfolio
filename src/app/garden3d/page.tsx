@@ -50,7 +50,10 @@ export default async function GardenPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col bg-home text-ink">
-      <div className="px-8 py-6 text-sm tracking-wide">RAHMI HALABY</div>
+      <div className="flex items-center justify-between px-8 py-6 text-sm tracking-wide">
+        <span>RAHMI HALABY</span>
+        <span>HEAD OF MARKETING AND COMMUNICATION AT GARDEN3D</span>
+      </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-10 px-8 pb-16">
         {videoFileUrl ? (
