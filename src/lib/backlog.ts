@@ -6,6 +6,20 @@ export type BacklogEntry = {
   message: string;
 };
 
+export type ActivityPoint = {
+  date: string; // YYYY-MM-DD
+  count: number;
+};
+
+export type Backlog = {
+  createdAt: string | null;
+  updatedAt: string | null;
+  totalCommits: number;
+  daysSpanned: number;
+  activity: ActivityPoint[];
+  entries: BacklogEntry[];
+};
+
 type GitHubCommit = {
   sha: string;
   commit: {
@@ -14,10 +28,17 @@ type GitHubCommit = {
   };
 };
 
-const REPO = "r-halaby/rahmi-portfolio";
-const LIMIT = 20;
+type GitHubRepo = {
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+};
 
-async function fetchCommits(): Promise<GitHubCommit[]> {
+const REPO = "r-halaby/rahmi-portfolio";
+const COMMIT_LIMIT = 100;
+const RECENT_LIMIT = 20;
+
+function ghHeaders(): HeadersInit {
   const headers: HeadersInit = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
@@ -25,67 +46,77 @@ async function fetchCommits(): Promise<GitHubCommit[]> {
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
+  return headers;
+}
+
+async function fetchRepo(): Promise<GitHubRepo | null> {
+  const res = await fetch(`https://api.github.com/repos/${REPO}`, {
+    headers: ghHeaders(),
+    next: { revalidate: 60 * 30 },
+  });
+  if (!res.ok) return null;
+  return (await res.json()) as GitHubRepo;
+}
+
+async function fetchCommits(): Promise<GitHubCommit[]> {
   const res = await fetch(
-    `https://api.github.com/repos/${REPO}/commits?per_page=${LIMIT}`,
-    { headers, next: { revalidate: 60 * 30 } },
+    `https://api.github.com/repos/${REPO}/commits?per_page=${COMMIT_LIMIT}`,
+    { headers: ghHeaders(), next: { revalidate: 60 * 30 } },
   );
   if (!res.ok) return [];
   return (await res.json()) as GitHubCommit[];
 }
 
-async function translateBatch(subjects: string[]): Promise<string[]> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return subjects;
-
-  const prompt = `Rewrite each of the following git commit subjects in plain, friendly English that a non-technical reader can understand. Keep each rewrite to one short sentence. Return exactly ${subjects.length} lines, one per input, in the same order, with no numbering or bullets.\n\n${subjects
-    .map((s, i) => `${i + 1}. ${s}`)
-    .join("\n")}`;
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1200,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-    if (!res.ok) return subjects;
-    const data = (await res.json()) as {
-      content?: { type: string; text?: string }[];
-    };
-    const text = data.content?.find((c) => c.type === "text")?.text ?? "";
-    const lines = text
-      .split("\n")
-      .map((l) => l.replace(/^\d+\.\s*/, "").trim())
-      .filter(Boolean);
-    if (lines.length !== subjects.length) return subjects;
-    return lines;
-  } catch {
-    return subjects;
-  }
+function toDayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-async function buildBacklog(): Promise<BacklogEntry[]> {
-  const commits = await fetchCommits();
+function buildActivity(
+  commits: GitHubCommit[],
+  createdAt: string | null,
+): ActivityPoint[] {
   if (commits.length === 0) return [];
+  const counts = new Map<string, number>();
+  for (const c of commits) {
+    const key = toDayKey(c.commit.author.date);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const startIso = createdAt ?? commits[commits.length - 1].commit.author.date;
+  const start = new Date(toDayKey(startIso));
+  const end = new Date(toDayKey(new Date().toISOString()));
+  const days: ActivityPoint[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const key = toDayKey(cursor.toISOString());
+    days.push({ date: key, count: counts.get(key) ?? 0 });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return days;
+}
 
-  const subjects = commits.map((c) => c.commit.message.split("\n")[0]);
-  const messages = await translateBatch(subjects);
+async function buildBacklog(): Promise<Backlog> {
+  const [repo, commits] = await Promise.all([fetchRepo(), fetchCommits()]);
 
-  return commits.map((c, i) => ({
+  const activity = buildActivity(commits, repo?.created_at ?? null);
+
+  const entries: BacklogEntry[] = commits.slice(0, RECENT_LIMIT).map((c) => ({
     sha: c.sha.slice(0, 7),
     date: c.commit.author.date,
-    message: messages[i] ?? subjects[i],
+    message: c.commit.message.split("\n")[0],
   }));
+
+  return {
+    createdAt: repo?.created_at ?? null,
+    updatedAt: repo?.pushed_at ?? repo?.updated_at ?? null,
+    totalCommits: commits.length,
+    daysSpanned: activity.length,
+    activity,
+    entries,
+  };
 }
 
-export const getBacklog = unstable_cache(buildBacklog, ["backlog-v1"], {
-  revalidate: 60 * 60 * 6,
+export const getBacklog = unstable_cache(buildBacklog, ["backlog-v4"], {
+  revalidate: 60 * 30,
   tags: ["backlog"],
 });

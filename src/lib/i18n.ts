@@ -17,7 +17,7 @@ export const strings: Dict = {
   "landing.skills": { en: "SKILLS", fr: "COMPÉTENCES" },
   "landing.bio": { en: "BIO", fr: "BIO" },
   // Panel
-  "panel.backlog": { en: "Backlog", fr: "Journal" },
+  "panel.backlog": { en: "Changelog", fr: "Journal des modifications" },
   "panel.language": { en: "Language", fr: "Langue" },
   "panel.style": { en: "Text style", fr: "Style de texte" },
   "panel.wallpaper": { en: "Wallpaper", fr: "Fond d’écran" },

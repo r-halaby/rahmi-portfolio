@@ -82,7 +82,14 @@ export default async function Home() {
     client.fetch<Bio>(bioQuery).catch(() => null),
     client.fetch<SanitySkill[]>(skillsQuery).catch(() => [] as SanitySkill[]),
     client.fetch<WallpaperItem[]>(wallpapersQuery).catch(() => [] as WallpaperItem[]),
-    getBacklog().catch(() => []),
+    getBacklog().catch(() => ({
+      createdAt: null,
+      updatedAt: null,
+      totalCommits: 0,
+      daysSpanned: 0,
+      activity: [],
+      entries: [],
+    })),
   ]);
 
   const wallpapers = (wallpaperItems ?? [])

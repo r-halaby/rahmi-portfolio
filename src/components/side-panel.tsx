@@ -21,6 +21,20 @@ type BacklogEntry = {
   message: string;
 };
 
+type ActivityPoint = {
+  date: string;
+  count: number;
+};
+
+type Backlog = {
+  createdAt: string | null;
+  updatedAt: string | null;
+  totalCommits: number;
+  daysSpanned: number;
+  activity: ActivityPoint[];
+  entries: BacklogEntry[];
+};
+
 type Wallpaper = {
   _id: string;
   title: string | null;
@@ -30,8 +44,10 @@ type Wallpaper = {
 
 type Props = {
   wallpapers: Wallpaper[];
-  backlog: BacklogEntry[];
+  backlog: Backlog;
 };
+
+const CREATED_LOCATION = "Index Greenpoint";
 
 export function SidePanel({ wallpapers, backlog }: Props) {
   const [active, setActive] = useState<PanelKey | null>(null);
@@ -127,11 +143,11 @@ export function SidePanel({ wallpapers, backlog }: Props) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
               transition={{ type: "tween", duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed right-16 top-1/2 z-40 w-72 -translate-y-1/2 bg-warm p-5 text-ink shadow-xl"
+              className="fixed right-16 top-16 z-40 w-72 max-h-[85vh] overflow-y-auto bg-warm p-5 text-ink shadow-xl"
               role="dialog"
               aria-label={active}
             >
-              {active === "backlog" && <BacklogPanel entries={backlog} />}
+              {active === "backlog" && <BacklogPanel backlog={backlog} />}
               {active === "language" && <LanguagePanel />}
               {active === "style" && <StylePanel />}
               {active === "wallpaper" && <WallpaperPanel wallpapers={wallpapers} />}
@@ -180,31 +196,129 @@ function PanelHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BacklogPanel({ entries }: { entries: BacklogEntry[] }) {
+function BacklogPanel({ backlog }: { backlog: Backlog }) {
   const tr = useT();
+  const created = backlog.createdAt ? new Date(backlog.createdAt) : null;
+  const updated = backlog.updatedAt ? new Date(backlog.updatedAt) : null;
   return (
-    <div className="max-h-[70vh] overflow-y-auto">
+    <div className="max-h-[75vh] overflow-y-auto">
       <PanelHeading>{tr("panel.backlog")}</PanelHeading>
-      {entries.length === 0 ? (
+      <p className="mb-4 text-xs leading-relaxed text-ink-muted">
+        {created && (
+          <>
+            Repo created {formatDate(created)} at {CREATED_LOCATION}
+          </>
+        )}
+        {updated && (
+          <>
+            {" · "}last edited {formatDate(updated)}
+            {" "}
+            <span className="whitespace-nowrap">({relativeShort(updated)})</span>
+          </>
+        )}
+      </p>
+
+      {backlog.activity.length > 1 && (
+        <div className="mb-4">
+          <p className="mb-1 text-[11px] text-ink-muted">
+            {backlog.totalCommits} changes across {backlog.daysSpanned}{" "}
+            {backlog.daysSpanned === 1 ? "day" : "days"}.
+          </p>
+          <ActivityChart points={backlog.activity} />
+          <div className="mt-1 flex justify-between text-[10px] uppercase tracking-widest text-ink-muted">
+            <span>{shortDay(backlog.activity[0].date)}</span>
+            <span>
+              {shortDay(backlog.activity[backlog.activity.length - 1].date)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-2 text-[10px] uppercase tracking-widest text-ink-muted">
+        Recent commits
+      </div>
+      {backlog.entries.length === 0 ? (
         <p className="text-xs text-ink-muted">{tr("panel.emptyBacklog")}</p>
       ) : (
         <ul className="space-y-3 text-sm">
-          {entries.map((e) => (
-            <li key={e.sha} className="border-b border-hairline pb-3 last:border-0">
-              <div>{e.message}</div>
-              <div className="mt-1 text-[10px] uppercase tracking-widest text-ink-muted">
-                {new Date(e.date).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+          {backlog.entries.map((e) => (
+            <li
+              key={e.sha}
+              className="border-b border-hairline pb-3 last:border-0"
+            >
+              <div className="mb-1 text-[10px] uppercase tracking-widest text-ink-muted">
+                {formatDate(new Date(e.date))}
+                {" · "}
+                {relativeShort(new Date(e.date))}
               </div>
+              <div>{e.message}</div>
             </li>
           ))}
         </ul>
       )}
     </div>
   );
+}
+
+function ActivityChart({ points }: { points: ActivityPoint[] }) {
+  const width = 240;
+  const height = 48;
+  const max = Math.max(1, ...points.map((p) => p.count));
+  const stepX = points.length > 1 ? width / (points.length - 1) : 0;
+  const coords = points.map((p, i) => {
+    const x = i * stepX;
+    const y = height - (p.count / max) * (height - 4) - 2;
+    return { x, y };
+  });
+  const path = coords
+    .map((c, i) => (i === 0 ? `M ${c.x} ${c.y}` : `L ${c.x} ${c.y}`))
+    .join(" ");
+  const area = `${path} L ${width} ${height} L 0 ${height} Z`;
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="block h-12 w-full"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <path d={area} fill="currentColor" opacity={0.12} />
+      <path
+        d={path}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function shortDay(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function relativeShort(d: Date) {
+  const diff = Date.now() - d.getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days < 1) return "today";
+  if (days === 1) return "1 day ago";
+  if (days < 7) return `${days} days ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks === 1) return "1 wk ago";
+  if (weeks < 5) return `${weeks} wks ago`;
+  const months = Math.floor(days / 30);
+  if (months === 1) return "1 mo ago";
+  return `${months} mos ago`;
 }
 
 function LanguagePanel() {
