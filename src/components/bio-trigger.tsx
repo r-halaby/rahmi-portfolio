@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import type { PortableTextBlock } from "@portabletext/react";
-import {
-  BioOverlay,
-  type BioClient,
-  type BioEducation,
-  type BioExperience,
-} from "./bio-overlay";
+import { BioOverlay, type BioExperience } from "./bio-overlay";
 
 type Props = {
   photoUrl: string | null;
   photoCaption: string | null;
   body: PortableTextBlock[] | null;
-  education: BioEducation[];
-  clients: BioClient[];
   experience: BioExperience[];
 };
 
@@ -22,8 +15,6 @@ export function BioTrigger({
   photoUrl,
   photoCaption,
   body,
-  education,
-  clients,
   experience,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -43,8 +34,6 @@ export function BioTrigger({
         photoUrl={photoUrl}
         photoCaption={photoCaption}
         body={body}
-        education={education}
-        clients={clients}
         experience={experience}
       />
     </>

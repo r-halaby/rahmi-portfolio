@@ -30,8 +30,6 @@ type Props = {
   photoUrl: string | null;
   photoCaption: string | null;
   body: PortableTextBlock[] | null;
-  education: BioEducation[];
-  clients: BioClient[];
   experience: BioExperience[];
 };
 
@@ -41,8 +39,6 @@ export function BioOverlay({
   photoUrl,
   photoCaption,
   body,
-  education,
-  clients,
   experience,
 }: Props) {
   useEffect(() => {
@@ -175,38 +171,6 @@ function Section({
       </h2>
       {children}
     </section>
-  );
-}
-
-function EducationEntry({ entry }: { entry: BioEducation }) {
-  return (
-    <div>
-      <div className="text-2xl leading-tight">{entry.institution}</div>
-      <div className="mt-2 space-y-3 text-xs uppercase tracking-wide text-ink-muted">
-        {entry.program && <div>{entry.program}</div>}
-        {entry.location && <div>{entry.location}</div>}
-        {entry.activities && (
-          <div>
-            <div className="mb-1 text-ink-muted opacity-70">
-              Activities and Societies
-            </div>
-            <div className="normal-case tracking-normal text-ink">
-              {entry.activities}
-            </div>
-          </div>
-        )}
-        {entry.coursework && (
-          <div>
-            <div className="mb-1 text-ink-muted opacity-70">
-              Coursework Included
-            </div>
-            <div className="normal-case tracking-normal text-ink">
-              {entry.coursework}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 

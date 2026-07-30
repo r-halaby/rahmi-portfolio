@@ -87,7 +87,7 @@ export default async function WritingReaderPage({
           />
         ) : (
           <p className="text-sm text-ink-muted">
-            Couldn't load the article content. You can{" "}
+            Couldn&apos;t load the article content. You can{" "}
             <a
               href={doc.url}
               target="_blank"

@@ -80,8 +80,6 @@ export default async function Home() {
           photoUrl={bioPhotoUrl(bio?.photo)}
           photoCaption={bio?.photoCaption ?? null}
           body={bio?.body ?? null}
-          education={bio?.education ?? []}
-          clients={bio?.clients ?? []}
           experience={bio?.experience ?? []}
         />
       </div>

@@ -9,12 +9,7 @@ import {
   VolunteerList,
   type VolunteerRole,
 } from "@/components/volunteer-list";
-import {
-  daysAgo,
-  durationBetween as flexDuration,
-  formatMonthYear as flexMonthYear,
-  yearFrom,
-} from "@/lib/dates";
+import { daysAgo, yearFrom } from "@/lib/dates";
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
 import {
@@ -56,20 +51,9 @@ type BioForWork = {
 
 export const revalidate = 60;
 
-const formatMonthYear = flexMonthYear;
-const durationBetween = flexDuration;
-
 function yearOnly(iso: string | null | undefined): string | null {
   const y = yearFrom(iso);
   return y == null ? null : String(y);
-}
-
-function titleCase(s: string | null): string | null {
-  if (!s) return s;
-  return s
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join("-");
 }
 
 function logoUrl(image: Image | null | undefined) {
