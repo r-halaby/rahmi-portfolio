@@ -93,7 +93,9 @@ export const welcomeQuery = /* groq */ `
     videoFile { asset->{url, mimeType} },
     portfolioUrl,
     loomUrl,
-    resumeFile { asset->{url, originalFilename} }
+    instagramUrl,
+    linkedinUrl,
+    email
   }
 `;
 

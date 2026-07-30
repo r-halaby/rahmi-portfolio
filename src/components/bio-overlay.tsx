@@ -92,7 +92,10 @@ export function BioOverlay({
                   loading="eager"
                 />
                 {photoCaption && (
-                  <div className="mt-4 whitespace-pre-line text-xs uppercase tracking-widest text-ink">
+                  <div
+                    style={{ fontSize: "10px" }}
+                    className="mt-4 whitespace-pre-line text-center uppercase tracking-widest text-ink"
+                  >
                     {photoCaption}
                   </div>
                 )}

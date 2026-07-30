@@ -10,14 +10,16 @@ type WelcomeDoc = {
   } | null;
   portfolioUrl: string | null;
   loomUrl: string | null;
-  resumeFile: {
-    asset?: { url?: string | null; originalFilename?: string | null } | null;
-  } | null;
+  instagramUrl: string | null;
+  linkedinUrl: string | null;
+  email: string | null;
 } | null;
+
+type LinkEntry = { label: string; href: string };
 
 export const revalidate = 60;
 
-export default async function WelcomePage() {
+export default async function GardenPage() {
   const doc = await client
     .fetch<WelcomeDoc>(welcomeQuery)
     .catch(() => null);
@@ -27,16 +29,23 @@ export default async function WelcomePage() {
     ? resolveEmbed(doc.videoEmbedUrl)
     : null;
 
-  const links: { label: string; href: string; download?: boolean }[] = [];
+  const rowOne: LinkEntry[] = [];
   if (doc?.portfolioUrl) {
-    links.push({ label: "Portfolio", href: doc.portfolioUrl });
+    rowOne.push({ label: "Portfolio", href: doc.portfolioUrl });
   }
   if (doc?.loomUrl) {
-    links.push({ label: "Loom", href: doc.loomUrl });
+    rowOne.push({ label: "Loom", href: doc.loomUrl });
   }
-  const resumeUrl = doc?.resumeFile?.asset?.url;
-  if (resumeUrl) {
-    links.push({ label: "Resume", href: resumeUrl, download: true });
+
+  const rowTwo: LinkEntry[] = [];
+  if (doc?.instagramUrl) {
+    rowTwo.push({ label: "Instagram", href: doc.instagramUrl });
+  }
+  if (doc?.linkedinUrl) {
+    rowTwo.push({ label: "LinkedIn", href: doc.linkedinUrl });
+  }
+  if (doc?.email) {
+    rowTwo.push({ label: "Email", href: `mailto:${doc.email}` });
   }
 
   return (
@@ -61,23 +70,33 @@ export default async function WelcomePage() {
           </div>
         ) : null}
 
-        {links.length > 0 && (
-          <nav className="flex flex-wrap items-center justify-center gap-8 text-sm tracking-widest">
-            {links.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noreferrer"
-                download={l.download ? "" : undefined}
-                className="uppercase hover:opacity-70"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
+        {(rowOne.length > 0 || rowTwo.length > 0) && (
+          <div className="flex flex-col items-center gap-3 text-sm tracking-widest">
+            {rowOne.length > 0 && <LinkRow links={rowOne} />}
+            {rowTwo.length > 0 && <LinkRow links={rowTwo} />}
+          </div>
         )}
       </div>
     </main>
+  );
+}
+
+function LinkRow({ links }: { links: LinkEntry[] }) {
+  return (
+    <nav className="flex flex-wrap items-center justify-center gap-3">
+      {links.map((l, i) => (
+        <span key={l.label} className="flex items-center gap-3">
+          {i > 0 && <span className="text-ink-muted">|</span>}
+          <a
+            href={l.href}
+            target={l.href.startsWith("mailto:") ? undefined : "_blank"}
+            rel="noreferrer"
+            className="uppercase hover:opacity-70"
+          >
+            {l.label}
+          </a>
+        </span>
+      ))}
+    </nav>
   );
 }

@@ -8,14 +8,16 @@ export const welcome = defineType({
     defineField({
       name: "videoFile",
       title: "Video file",
-      description: "Uploaded video. If both file and embed URL are set, the file wins.",
+      description:
+        "Uploaded video. If both file and embed URL are set, the file wins.",
       type: "file",
       options: { accept: "video/*" },
     }),
     defineField({
       name: "videoEmbedUrl",
       title: "Video embed URL",
-      description: "YouTube or Vimeo link. Used only when no video file is uploaded.",
+      description:
+        "YouTube or Vimeo link. Used only when no video file is uploaded.",
       type: "url",
     }),
     defineField({
@@ -30,10 +32,20 @@ export const welcome = defineType({
       type: "url",
     }),
     defineField({
-      name: "resumeFile",
-      title: "Resume (PDF)",
-      type: "file",
-      options: { accept: "application/pdf" },
+      name: "instagramUrl",
+      title: "Instagram URL",
+      type: "url",
+    }),
+    defineField({
+      name: "linkedinUrl",
+      title: "LinkedIn URL",
+      type: "url",
+    }),
+    defineField({
+      name: "email",
+      title: "Email address",
+      description: "Used for the EMAIL link (opens mailto:).",
+      type: "string",
     }),
   ],
   preview: { prepare: () => ({ title: "Welcome (landing)" }) },
