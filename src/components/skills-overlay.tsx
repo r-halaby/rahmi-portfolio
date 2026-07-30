@@ -39,8 +39,7 @@ export function SkillsOverlay({ open, onClose, skills, onSelect }: Props) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            style={{ left: "calc(50% + 24rem)" }}
-            className="fixed right-0 top-0 z-50 h-full overflow-y-auto text-ink"
+            className="fixed inset-0 z-50 overflow-y-auto bg-warm text-ink sm:left-[calc(50%+24rem)] sm:bg-transparent"
             aria-modal="true"
             role="dialog"
           >

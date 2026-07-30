@@ -70,12 +70,14 @@ function latestOrPresent(
 
 export function ExperienceList({ roles }: { roles: ExperienceRole[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const [tapped, setTapped] = useState<number | null>(null);
 
   return (
     <div className="space-y-10">
       {roles.map((r, i) => {
         const isTop = i === 0;
-        const expanded = hovered === null ? isTop : hovered === i;
+        const active = tapped ?? hovered;
+        const expanded = active === null ? isTop : active === i;
         return (
           <RoleEntry
             key={r._id}
@@ -83,6 +85,7 @@ export function ExperienceList({ roles }: { roles: ExperienceRole[] }) {
             expanded={expanded}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
+            onToggle={() => setTapped((t) => (t === i ? null : i))}
           />
         );
       })}
@@ -95,11 +98,13 @@ function RoleEntry({
   expanded,
   onMouseEnter,
   onMouseLeave,
+  onToggle,
 }: {
   entry: ExperienceRole;
   expanded: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onToggle: () => void;
 }) {
   const grouped = (entry.titles ?? []).length > 0;
 
@@ -184,7 +189,14 @@ function RoleEntry({
 
   return (
     <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-      {header}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="block w-full text-left"
+        aria-expanded={expanded}
+      >
+        {header}
+      </button>
       <div
         className={`overflow-hidden transition-all duration-300 ease-out ${
           expanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"

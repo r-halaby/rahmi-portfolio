@@ -18,7 +18,7 @@ export function NavBox({ href, label, imageUrl }: Props) {
       <Link
         href={href}
         aria-label={label}
-        className={`block aspect-square overflow-hidden ${imageUrl ? "" : "bg-warm"}`}
+        className={`relative block aspect-square overflow-hidden ${imageUrl ? "" : "bg-warm"}`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
@@ -32,6 +32,9 @@ export function NavBox({ href, label, imageUrl }: Props) {
             loading="eager"
           />
         )}
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 hidden bg-ink/70 px-2 py-1 text-center text-[10px] uppercase tracking-wide text-paper [@media(hover:none)]:block">
+          {label}
+        </span>
       </Link>
       {hover && (
         <span

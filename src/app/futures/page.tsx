@@ -102,7 +102,7 @@ function Section({
 }) {
   return (
     <section className="mb-16">
-      <h2 className="mb-10 border-b border-hairline pb-2 text-6xl leading-none">
+      <h2 className="mb-10 border-b border-hairline pb-2 text-4xl leading-none sm:text-6xl">
         {title}
       </h2>
       <div className="space-y-24">

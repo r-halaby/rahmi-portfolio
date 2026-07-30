@@ -50,7 +50,7 @@ export default async function GardenPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col bg-home text-ink">
-      <div className="flex items-center justify-between px-8 py-6 text-sm tracking-wide">
+      <div className="flex flex-col gap-1 px-6 py-6 text-sm tracking-wide sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <span>RAHMI HALABY</span>
         <span>HEAD OF MARKETING AND COMMUNICATION AT GARDEN3D</span>
       </div>

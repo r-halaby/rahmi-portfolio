@@ -103,7 +103,7 @@ export default async function ExperiencePage() {
 
         {clients.length > 0 && (
           <Section title="Clients">
-            <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-base">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-base sm:grid-cols-3">
               {clients.map((c, i) =>
                 c.url ? (
                   <a
@@ -162,7 +162,7 @@ function Section({
 }) {
   return (
     <section className="mb-16">
-      <h2 className="mb-8 border-b border-hairline pb-2 text-6xl leading-none">
+      <h2 className="mb-8 border-b border-hairline pb-2 text-4xl leading-none sm:text-6xl">
         {title}
       </h2>
       {children}

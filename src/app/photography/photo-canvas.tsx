@@ -79,6 +79,9 @@ export function PhotoCanvas({ photos }: { photos: Photo[] }) {
   useEffect(() => {
     const n = layout.length;
     if (n === 0) return;
+    if (typeof window !== "undefined" && !window.matchMedia("(min-width: 640px)").matches) {
+      return;
+    }
 
     const cycleDur = n * SLOT;
     const wrap = gsap.utils.wrap(0, cycleDur);

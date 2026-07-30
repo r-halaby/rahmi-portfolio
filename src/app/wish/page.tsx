@@ -85,10 +85,10 @@ function WishRow({ row }: { row: WishProject }) {
   const image = coverUrl(row.coverImage);
 
   const inner = (
-    <div className="group grid grid-cols-[7rem_1fr_auto_auto] items-center gap-6 border-b border-hairline py-4">
+    <div className="group flex flex-col gap-3 border-b border-hairline py-4 sm:grid sm:grid-cols-[7rem_1fr_auto_auto] sm:items-center sm:gap-6">
       <div
         style={{ aspectRatio: "16 / 9" }}
-        className="w-full overflow-hidden bg-ink/5"
+        className="w-32 shrink-0 overflow-hidden bg-ink/5 sm:w-full"
       >
         {image && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -100,16 +100,13 @@ function WishRow({ row }: { row: WishProject }) {
           />
         )}
       </div>
-      <div
-        style={{ maxWidth: "24rem" }}
-        className="min-w-0 truncate text-base text-ink group-hover:opacity-70"
-      >
+      <div className="min-w-0 text-base text-ink group-hover:opacity-70 sm:max-w-[24rem] sm:truncate">
         {row.title}
       </div>
       <div className="text-xs uppercase tracking-wide text-ink-muted">
         {row.creator}
       </div>
-      <div className="w-24 text-right text-xs uppercase tracking-wide text-ink-muted">
+      <div className="text-xs uppercase tracking-wide text-ink-muted sm:w-24 sm:text-right">
         {dateLabel ?? "—"}
       </div>
     </div>

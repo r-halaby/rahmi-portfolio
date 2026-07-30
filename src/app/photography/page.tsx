@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
 import { photographyQuery, photosQuery } from "@/sanity/queries";
+import { MobilePhotoList } from "./mobile-photo-list";
 import { PhotoCanvas, type Photo } from "./photo-canvas";
 
 const PLACEHOLDER_PHOTOS: Photo[] = Array.from({ length: 28 }, (_, i) => {
@@ -54,15 +55,15 @@ export default async function PhotographyPage() {
         </Link>
       </header>
       {page?.description && (
-        <div
-          style={{ maxWidth: "33vw" }}
-          className="fixed bottom-6 right-8 z-0 text-right text-xs leading-relaxed text-ink"
-        >
+        <div className="fixed bottom-6 right-8 z-0 hidden max-w-[33vw] text-right text-xs leading-relaxed text-ink sm:block">
           {page.description}
         </div>
       )}
-      <div className="pointer-events-none relative z-10">
+      <div className="pointer-events-none relative z-10 hidden sm:block">
         <PhotoCanvas photos={displayPhotos} />
+      </div>
+      <div className="sm:hidden">
+        <MobilePhotoList photos={displayPhotos} />
       </div>
     </main>
   );

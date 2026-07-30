@@ -63,7 +63,7 @@ export default async function Home() {
     <main className="relative flex min-h-screen flex-col bg-home text-ink">
       <div className="px-8 py-6 text-sm tracking-wide">RAHMI HALABY</div>
       <div className="flex flex-1 items-center justify-center px-8">
-        <div className="grid w-full max-w-3xl grid-cols-6 gap-3">
+        <div className="grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
           {NAV.map((item) => (
             <NavBox
               key={item.href}

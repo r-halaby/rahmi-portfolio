@@ -76,8 +76,7 @@ export function BioOverlay({
                 ease: [0.4, 0, 0.2, 1],
                 delay: 0.05,
               }}
-              style={{ width: "35vw" }}
-              className="pointer-events-none fixed left-0 top-0 z-50 flex h-full flex-col items-center justify-center"
+              className="pointer-events-none fixed left-0 top-0 z-50 hidden h-full w-[35vw] flex-col items-center justify-center sm:flex"
             >
               <div style={{ maxWidth: "26vw" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -105,8 +104,7 @@ export function BioOverlay({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            style={{ width: "65vw" }}
-            className="fixed right-0 top-0 z-50 h-full overflow-y-auto bg-warm text-ink"
+            className="fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-warm text-ink sm:w-[65vw]"
             aria-modal="true"
             role="dialog"
           >
@@ -114,12 +112,12 @@ export function BioOverlay({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute right-8 top-6 text-sm tracking-wide hover:opacity-70"
+              className="absolute right-6 top-5 text-sm tracking-wide hover:opacity-70 sm:right-8 sm:top-6"
             >
               ×
             </button>
 
-            <div className="px-14 py-16">
+            <div className="px-6 py-10 sm:px-14 sm:py-16">
               <Section title="Overview">
                 <div className="mb-6 aspect-video w-full max-w-md">
                   <iframe
@@ -139,7 +137,7 @@ export function BioOverlay({
 
               {experience.length > 0 && (
                 <Section title="Experience">
-                  <div className="grid grid-cols-2 gap-x-10 gap-y-10">
+                  <div className="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
                     {experience.map((e, i) => (
                       <ExperienceEntry
                         key={`${e.company}-${e.startYear}-${i}`}
@@ -166,7 +164,7 @@ function Section({
 }) {
   return (
     <section className="mb-16">
-      <h2 className="mb-8 border-b border-hairline pb-2 text-6xl leading-none">
+      <h2 className="mb-8 border-b border-hairline pb-2 text-4xl leading-none sm:text-6xl">
         {title}
       </h2>
       {children}
