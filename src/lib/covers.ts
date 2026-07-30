@@ -141,12 +141,13 @@ export function resolveEmbed(url: string): ResolvedEmbed | null {
 
     if (host === "instagram.com") {
       const m = parsed.pathname.match(
-        /^(?:\/[^/]+)?\/(?:p|reel|reels|tv)\/([^/]+)/,
+        /^(?:\/[^/]+)?\/(p|reel|reels|tv)\/([^/]+)/,
       );
       if (m) {
+        const segment = m[1] === "reels" ? "reel" : m[1];
         return {
           kind: "instagram",
-          src: `https://www.instagram.com/p/${m[1]}/embed`,
+          src: `https://www.instagram.com/${segment}/${m[2]}/embed`,
           aspect: "portrait",
         };
       }
