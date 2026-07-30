@@ -1,4 +1,5 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
+import { galleryMembers } from "./gallery-members";
 
 export const skill = defineType({
   name: "skill",
@@ -38,17 +39,10 @@ export const skill = defineType({
     defineField({
       name: "gallery",
       title: "Gallery",
-      description: "Images or reference frames shown below the overview.",
+      description:
+        "Images, uploaded videos, or embedded media (YouTube, Vimeo, SoundCloud, Instagram).",
       type: "array",
-      of: [
-        defineArrayMember({
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: "caption", title: "Caption", type: "string" }),
-          ],
-        }),
-      ],
+      of: galleryMembers(),
     }),
     defineField({
       name: "order",

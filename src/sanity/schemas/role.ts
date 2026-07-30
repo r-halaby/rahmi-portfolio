@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
+import { galleryMembers } from "./gallery-members";
 
 export const role = defineType({
   name: "role",
@@ -87,17 +88,9 @@ export const role = defineType({
       name: "gallery",
       title: "Gallery",
       description:
-        "Images that scroll horizontally under the description.",
+        "Images, uploaded videos, or embedded media (YouTube, Vimeo, SoundCloud, Instagram).",
       type: "array",
-      of: [
-        defineArrayMember({
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: "caption", title: "Caption", type: "string" }),
-          ],
-        }),
-      ],
+      of: galleryMembers(),
     }),
     defineField({
       name: "titles",
@@ -162,19 +155,7 @@ export const role = defineType({
               name: "gallery",
               title: "Gallery",
               type: "array",
-              of: [
-                defineArrayMember({
-                  type: "image",
-                  options: { hotspot: true },
-                  fields: [
-                    defineField({
-                      name: "caption",
-                      title: "Caption",
-                      type: "string",
-                    }),
-                  ],
-                }),
-              ],
+              of: galleryMembers(),
             }),
           ],
           preview: {

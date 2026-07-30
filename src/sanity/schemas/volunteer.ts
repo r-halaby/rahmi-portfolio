@@ -1,4 +1,5 @@
 import { defineType, defineField } from "sanity";
+import { galleryMembers } from "./gallery-members";
 
 export const volunteer = defineType({
   name: "volunteer",
@@ -54,6 +55,14 @@ export const volunteer = defineType({
       title: "Description",
       type: "text",
       rows: 3,
+    }),
+    defineField({
+      name: "gallery",
+      title: "Gallery",
+      description:
+        "Images, uploaded videos, or embedded media (YouTube, Vimeo, SoundCloud, Instagram).",
+      type: "array",
+      of: galleryMembers(),
     }),
   ],
   orderings: [

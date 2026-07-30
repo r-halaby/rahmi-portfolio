@@ -10,7 +10,7 @@ type FutureDoc = {
   _id: string;
   title: string | null;
   status: "active" | "shipped" | "aspirational";
-  url: string;
+  url: string | null;
   coverImage: Image | null;
   description: string | null;
 };
@@ -19,7 +19,7 @@ type FutureCard = {
   _id: string;
   title: string;
   status: "active" | "shipped" | "aspirational";
-  url: string;
+  url: string | null;
   imageUrl: string | null;
   description: string | null;
 };
@@ -41,14 +41,14 @@ export default async function PlayspacePage() {
       const override = coverOverride(d.coverImage);
       let title = d.title;
       let imageUrl = override;
-      if (!title || !imageUrl) {
+      if (d.url && (!title || !imageUrl)) {
         const meta = await fetchArticleMeta(d.url);
-        title = title || meta.title || "Untitled";
+        title = title || meta.title || null;
         imageUrl = imageUrl ?? meta.imageUrl ?? null;
       }
       return {
         _id: d._id,
-        title: title!,
+        title: title || "Untitled",
         status: d.status,
         url: d.url,
         imageUrl,
@@ -134,12 +134,29 @@ function FutureCardRow({
           </div>
         )}
       </div>
-      <a
-        href={card.url}
-        target="_blank"
-        rel="noreferrer"
-        className="group block"
-      >
+      {card.url ? (
+        <a
+          href={card.url}
+          target="_blank"
+          rel="noreferrer"
+          className="group block"
+        >
+          <div
+            style={{ aspectRatio: "16 / 9" }}
+            className="w-full overflow-hidden bg-ink/5"
+          >
+            {card.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={card.imageUrl}
+                alt=""
+                className="block h-full w-full object-cover transition-opacity group-hover:opacity-90"
+                loading="lazy"
+              />
+            )}
+          </div>
+        </a>
+      ) : (
         <div
           style={{ aspectRatio: "16 / 9" }}
           className="w-full overflow-hidden bg-ink/5"
@@ -149,12 +166,12 @@ function FutureCardRow({
             <img
               src={card.imageUrl}
               alt=""
-              className="block h-full w-full object-cover transition-opacity group-hover:opacity-90"
+              className="block h-full w-full object-cover"
               loading="lazy"
             />
           )}
         </div>
-      </a>
+      )}
     </article>
   );
 }

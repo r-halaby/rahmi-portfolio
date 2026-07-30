@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import type { Image } from "sanity";
+import { ExpandableDescription } from "@/components/expandable-description";
+import {
+  GalleryCarousel,
+  type GalleryItem,
+} from "@/components/gallery-carousel";
 import {
   durationBetween as flexDuration,
   formatMonthYear as flexMonthYear,
 } from "@/lib/dates";
 import { urlFor } from "@/sanity/image";
-
-type GalleryImage = Image & { caption?: string | null };
 
 export type ExperiencePosition = {
   title: string;
@@ -16,7 +19,7 @@ export type ExperiencePosition = {
   startDate: string;
   endDate: string | null;
   description: string | null;
-  gallery: GalleryImage[] | null;
+  gallery: GalleryItem[] | null;
 };
 
 export type ExperienceRole = {
@@ -30,7 +33,7 @@ export type ExperienceRole = {
   startDate: string;
   endDate: string | null;
   description: string | null;
-  gallery: GalleryImage[] | null;
+  gallery: GalleryItem[] | null;
   titles: ExperiencePosition[] | null;
 };
 
@@ -168,12 +171,12 @@ function RoleEntry({
     body = (
       <>
         {entry.description && (
-          <p className="mt-3 text-sm leading-relaxed text-ink">
-            {entry.description}
-          </p>
+          <div className="mt-3">
+            <ExpandableDescription text={entry.description} />
+          </div>
         )}
         {entry.gallery && entry.gallery.length > 0 && (
-          <RoleCarousel images={entry.gallery} />
+          <GalleryCarousel images={entry.gallery} />
         )}
       </>
     );
@@ -213,12 +216,12 @@ function PositionEntry({ position }: { position: ExperiencePosition }) {
         {dateLine && <div>{dateLine}</div>}
       </div>
       {position.description && (
-        <p className="mt-2 text-sm leading-relaxed text-ink">
-          {position.description}
-        </p>
+        <div className="mt-2">
+          <ExpandableDescription text={position.description} />
+        </div>
       )}
       {position.gallery && position.gallery.length > 0 && (
-        <RoleCarousel images={position.gallery} />
+        <GalleryCarousel images={position.gallery} />
       )}
     </div>
   );
@@ -244,37 +247,3 @@ function LogoBox({ image, size = 64 }: { image: Image | null; size?: number }) {
   );
 }
 
-function RoleCarousel({ images }: { images: GalleryImage[] }) {
-  return (
-    <div className="mt-4 -mx-8 overflow-x-auto px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex gap-3" style={{ scrollSnapType: "x mandatory" }}>
-        {images.map((img, i) => {
-          const url = img?.asset
-            ? urlFor(img).width(1200).auto("format").url()
-            : null;
-          if (!url) return null;
-          return (
-            <figure
-              key={img.asset?._ref ?? i}
-              className="shrink-0"
-              style={{ scrollSnapAlign: "start" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={img.caption ?? ""}
-                className="block h-64 w-auto object-cover"
-                loading="lazy"
-              />
-              {img.caption && (
-                <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
-                  {img.caption}
-                </figcaption>
-              )}
-            </figure>
-          );
-        })}
-      </div>
-    </div>
-  );
-}

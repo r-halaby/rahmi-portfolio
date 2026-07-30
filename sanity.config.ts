@@ -13,6 +13,7 @@ const SINGLETON_TYPES = new Set([
   "photography",
   "wish",
   "writing",
+  "welcome",
 ]);
 const SINGLETON_ACTIONS = new Set([
   "publish",

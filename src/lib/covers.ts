@@ -88,7 +88,71 @@ export function talkCover(url: string): string | null {
 
 export function youtubeEmbedUrl(url: string): string | null {
   const id = youtubeIdFromUrl(url);
-  return id ? `https://www.youtube.com/embed/${id}` : null;
+  if (!id) return null;
+  const params = new URLSearchParams({
+    rel: "0",
+    modestbranding: "1",
+    iv_load_policy: "3",
+    playsinline: "1",
+    fs: "0",
+  });
+  return `https://www.youtube.com/embed/${id}?${params.toString()}`;
+}
+
+export type EmbedKind = "youtube" | "vimeo" | "soundcloud" | "instagram";
+
+export type ResolvedEmbed = {
+  kind: EmbedKind;
+  src: string;
+  aspect: "video" | "audio" | "portrait";
+};
+
+export function resolveEmbed(url: string): ResolvedEmbed | null {
+  const trimmed = url?.trim();
+  if (!trimmed) return null;
+
+  const yt = youtubeEmbedUrl(trimmed);
+  if (yt) return { kind: "youtube", src: yt, aspect: "video" };
+
+  try {
+    const parsed = new URL(trimmed);
+    const host = parsed.hostname.replace(/^www\./, "");
+
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id =
+        host === "player.vimeo.com"
+          ? parsed.pathname.match(/^\/video\/(\d+)/)?.[1]
+          : parsed.pathname.split("/").filter(Boolean)[0];
+      if (id && /^\d+$/.test(id)) {
+        return {
+          kind: "vimeo",
+          src: `https://player.vimeo.com/video/${id}`,
+          aspect: "video",
+        };
+      }
+    }
+
+    if (host === "soundcloud.com" || host === "on.soundcloud.com") {
+      const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
+        trimmed,
+      )}&color=%23121212&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true`;
+      return { kind: "soundcloud", src, aspect: "audio" };
+    }
+
+    if (host === "instagram.com") {
+      const m = parsed.pathname.match(/^\/(?:p|reel|reels|tv)\/([^/]+)/);
+      if (m) {
+        return {
+          kind: "instagram",
+          src: `https://www.instagram.com/p/${m[1]}/embed`,
+          aspect: "portrait",
+        };
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 function youtubeIdFromUrl(raw: string): string | null {

@@ -8,9 +8,9 @@ export const future = defineType({
     defineField({
       name: "url",
       title: "URL",
-      description: "Paste the link. Title and image are auto-fetched.",
+      description:
+        "Optional. If provided, title and image are auto-fetched and the card links out.",
       type: "url",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "status",

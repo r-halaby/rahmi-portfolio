@@ -1,9 +1,14 @@
 import Link from "next/link";
 import type { Image } from "sanity";
+import { DownloadResumeButton } from "@/components/download-resume-button";
 import {
   ExperienceList,
   type ExperienceRole,
 } from "@/components/experience-list";
+import {
+  VolunteerList,
+  type VolunteerRole,
+} from "@/components/volunteer-list";
 import {
   daysAgo,
   durationBetween as flexDuration,
@@ -34,16 +39,7 @@ type Education = {
   coursework: string | null;
 };
 
-type Volunteer = {
-  _id: string;
-  role: string;
-  organization: string;
-  logo: Image | null;
-  cause: string | null;
-  startDate: string;
-  endDate: string | null;
-  description: string | null;
-};
+type Volunteer = VolunteerRole;
 
 type Client = { name: string; url: string | null };
 type BioEducation = {
@@ -97,7 +93,10 @@ export default async function ExperiencePage() {
     <main className="min-h-screen bg-warm text-ink">
       <header className="flex items-center justify-between px-8 py-6">
         <div className="text-sm tracking-wide">RAHMI HALABY</div>
-        <Link href="/" className="text-sm tracking-wide hover:opacity-70">
+        <Link
+          href="/"
+          className="text-sm tracking-wide hover:opacity-70 print:hidden"
+        >
           BACK
         </Link>
       </header>
@@ -140,6 +139,12 @@ export default async function ExperiencePage() {
           </Section>
         )}
 
+        {volunteers.length > 0 && (
+          <Section title="Volunteering">
+            <VolunteerList roles={volunteers} />
+          </Section>
+        )}
+
         {(educations.length > 0 || bioEducations.length > 0) && (
           <Section title="Education">
             <div className="space-y-10">
@@ -153,22 +158,13 @@ export default async function ExperiencePage() {
           </Section>
         )}
 
-        {volunteers.length > 0 && (
-          <Section title="Volunteering">
-            <div className="space-y-10">
-              {volunteers.map((v) => (
-                <VolunteerEntry key={v._id} entry={v} />
-              ))}
-            </div>
-          </Section>
-        )}
-
         {roles.length === 0 &&
           educations.length === 0 &&
           volunteers.length === 0 && (
             <p className="text-sm text-ink-muted">—</p>
           )}
       </div>
+      <DownloadResumeButton />
     </main>
   );
 }
@@ -281,31 +277,3 @@ function BioEducationEntry({ entry }: { entry: BioEducation }) {
   );
 }
 
-function VolunteerEntry({ entry }: { entry: Volunteer }) {
-  const start = formatMonthYear(entry.startDate);
-  const end = entry.endDate ? formatMonthYear(entry.endDate) : "Present";
-  const duration = durationBetween(entry.startDate, entry.endDate);
-  const dateLine = [
-    [start, end].filter(Boolean).join(" – "),
-    duration,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <div>
-      <LogoBox image={entry.logo} />
-      <div className="mt-3 text-xl leading-tight">{entry.role}</div>
-      <div className="mt-1 space-y-1 text-xs uppercase tracking-wide text-ink-muted">
-        <div>{entry.organization}</div>
-        {dateLine && <div>{dateLine}</div>}
-        {entry.cause && <div>{entry.cause}</div>}
-      </div>
-      {entry.description && (
-        <p className="mt-3 text-sm leading-relaxed text-ink">
-          {entry.description}
-        </p>
-      )}
-    </div>
-  );
-}

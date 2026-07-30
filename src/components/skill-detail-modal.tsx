@@ -4,15 +4,33 @@ import { PortableText, type PortableTextBlock } from "@portabletext/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import type { Image } from "sanity";
+import { ExpandableSection } from "@/components/expandable-section";
+import { resolveEmbed } from "@/lib/covers";
 import { urlFor } from "@/sanity/image";
 
-type GalleryImage = Image & { caption?: string | null };
+type ImageItem = Image & { _type: "image"; caption?: string | null };
+type EmbedItem = {
+  _type: "embed";
+  _key?: string;
+  url: string;
+  caption?: string | null;
+};
+type VideoItem = {
+  _type: "video";
+  _key?: string;
+  caption?: string | null;
+  file?: {
+    asset?: { url?: string | null; mimeType?: string | null } | null;
+  } | null;
+  poster?: Image | null;
+};
+export type GalleryItem = ImageItem | EmbedItem | VideoItem;
 
 export type SanitySkill = {
   _id: string;
   name: string;
   body: PortableTextBlock[] | null;
-  gallery: GalleryImage[] | null;
+  gallery: GalleryItem[] | null;
 };
 
 type Props = {
@@ -71,8 +89,12 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
                 <h2 className="mb-6 text-2xl">{name}</h2>
 
                 {skill?.body && skill.body.length > 0 ? (
-                  <div className="mb-8 space-y-4 text-sm leading-relaxed text-ink">
-                    <PortableText value={skill.body} />
+                  <div className="mb-8">
+                    <ExpandableSection maxHeight={180}>
+                      <div className="space-y-4 text-sm leading-relaxed text-ink">
+                        <PortableText value={skill.body} />
+                      </div>
+                    </ExpandableSection>
                   </div>
                 ) : (
                   <p className="mb-8 text-sm text-ink-muted">
@@ -86,32 +108,9 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
                       className="flex gap-3"
                       style={{ scrollSnapType: "x mandatory" }}
                     >
-                      {skill.gallery.map((img, i) => {
-                        const url = img.asset
-                          ? urlFor(img).width(1200).auto("format").url()
-                          : null;
-                        if (!url) return null;
-                        return (
-                          <figure
-                            key={img.asset?._ref ?? i}
-                            className="shrink-0"
-                            style={{ scrollSnapAlign: "start" }}
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={url}
-                              alt={img.caption ?? ""}
-                              className="block h-64 w-auto object-cover"
-                              loading="lazy"
-                            />
-                            {img.caption && (
-                              <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
-                                {img.caption}
-                              </figcaption>
-                            )}
-                          </figure>
-                        );
-                      })}
+                      {skill.gallery.map((item, i) => (
+                        <GalleryFigure key={itemKey(item, i)} item={item} />
+                      ))}
                     </div>
                   </div>
                 )}
@@ -121,5 +120,112 @@ export function SkillDetailModal({ open, onClose, name, skill }: Props) {
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+function itemKey(item: GalleryItem, i: number) {
+  if (item._type === "image") return item.asset?._ref ?? `img-${i}`;
+  if (item._type === "video") return item._key ?? `video-${i}`;
+  return item._key ?? item.url ?? `embed-${i}`;
+}
+
+function GalleryFigure({ item }: { item: GalleryItem }) {
+  if (item._type === "video") {
+    const videoUrl = item.file?.asset?.url;
+    if (!videoUrl) return null;
+    const posterUrl = item.poster?.asset
+      ? urlFor(item.poster as Image).width(800).auto("format").url()
+      : undefined;
+    return (
+      <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video
+          src={videoUrl}
+          poster={posterUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="block h-64 w-auto"
+        />
+        {item.caption && (
+          <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  if (item._type === "image") {
+    const url = item.asset
+      ? urlFor(item as Image).width(1200).auto("format").url()
+      : null;
+    if (!url) return null;
+    return (
+      <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt={item.caption ?? ""}
+          className="block h-64 w-auto object-cover"
+          loading="lazy"
+        />
+        {item.caption && (
+          <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  const resolved = resolveEmbed(item.url);
+  if (!resolved) {
+    return (
+      <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-64 w-64 items-center justify-center bg-ink/5 text-xs text-ink-muted underline"
+        >
+          Open link
+        </a>
+        {item.caption && (
+          <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  const width = resolved.aspect === "video" ? 456 : 400;
+  const hideChrome = resolved.kind === "youtube";
+  return (
+    <figure className="shrink-0" style={{ scrollSnapAlign: "start" }}>
+      <div className="group relative" style={{ width, height: 256 }}>
+        <iframe
+          src={resolved.src}
+          title={item.caption ?? "Embed"}
+          allow="autoplay; encrypted-media; picture-in-picture; clipboard-write"
+          allowFullScreen
+          className="block h-full w-full border-0"
+        />
+        {hideChrome && (
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-warm transition-opacity duration-200 group-hover:opacity-0" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-warm transition-opacity duration-200 group-hover:opacity-0" />
+          </>
+        )}
+      </div>
+      {item.caption && (
+        <figcaption className="mt-1 max-w-xs text-xs text-ink-muted">
+          {item.caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }

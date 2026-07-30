@@ -29,7 +29,7 @@ export const skillsQuery = /* groq */ `
     _id,
     name,
     body,
-    gallery[] { ..., "caption": caption }
+    gallery[] { _type, ..., "caption": caption, file { asset->{url, mimeType} }, poster }
   }
 `;
 
@@ -54,10 +54,10 @@ export const wishProjectsQuery = /* groq */ `
 export const rolesQuery = /* groq */ `
   *[_type == "role"] | order(coalesce(endDate, "9999-12-31") desc, startDate desc) {
     _id, title, company, logo, employmentType, workMode, location, startDate, endDate, description,
-    gallery[] { ..., "caption": caption },
+    gallery[] { _type, ..., "caption": caption, file { asset->{url, mimeType} }, poster },
     titles[] {
       title, employmentType, startDate, endDate, description,
-      gallery[] { ..., "caption": caption }
+      gallery[] { _type, ..., "caption": caption, file { asset->{url, mimeType} }, poster }
     }
   }
 `;
@@ -69,8 +69,9 @@ export const educationsQuery = /* groq */ `
 `;
 
 export const volunteersQuery = /* groq */ `
-  *[_type == "volunteer"] | order(coalesce(startDate, "") desc) {
-    _id, role, organization, logo, cause, startDate, endDate, description
+  *[_type == "volunteer"] | order(coalesce(endDate, "9999-12-31") desc, startDate desc) {
+    _id, role, organization, logo, cause, startDate, endDate, description,
+    gallery[] { _type, ..., "caption": caption, file { asset->{url, mimeType} }, poster }
   }
 `;
 
@@ -83,6 +84,16 @@ export const articlesArchiveQuery = /* groq */ `
 export const articleByIdQuery = /* groq */ `
   *[_type == "article" && _id == $id][0] {
     _id, title, publication, category, url, publishedAt, excerpt
+  }
+`;
+
+export const welcomeQuery = /* groq */ `
+  *[_type == "welcome" && _id == "welcome"][0] {
+    videoEmbedUrl,
+    videoFile { asset->{url, mimeType} },
+    portfolioUrl,
+    loomUrl,
+    resumeFile { asset->{url, originalFilename} }
   }
 `;
 
