@@ -8,6 +8,8 @@ import type {
 } from "@/components/bio-overlay";
 import { LandingBackground } from "@/components/landing-background";
 import { NavBox } from "@/components/nav-box";
+import { RadioTrigger } from "@/components/radio-trigger";
+import type { RadioEpisode } from "@/components/radio-player";
 import { SidePanel } from "@/components/side-panel";
 import type { SanitySkill } from "@/components/skill-detail-modal";
 import { SkillsTrigger } from "@/components/skills-trigger";
@@ -18,6 +20,7 @@ import { urlFor } from "@/sanity/image";
 import {
   bioQuery,
   landingQuery,
+  radioEpisodesQuery,
   skillsQuery,
   wallpapersQuery,
 } from "@/sanity/queries";
@@ -80,7 +83,7 @@ function wallpaperImage(item: WallpaperItem, w: number, h?: number) {
 }
 
 export default async function Home() {
-  const [landing, bio, sanitySkills, wallpaperItems, backlog] = await Promise.all([
+  const [landing, bio, sanitySkills, wallpaperItems, backlog, episodes] = await Promise.all([
     client.fetch<Landing>(landingQuery).catch(() => null),
     client.fetch<Bio>(bioQuery).catch(() => null),
     client.fetch<SanitySkill[]>(skillsQuery).catch(() => [] as SanitySkill[]),
@@ -93,6 +96,7 @@ export default async function Home() {
       activity: [],
       entries: [],
     })),
+    client.fetch<RadioEpisode[]>(radioEpisodesQuery).catch(() => [] as RadioEpisode[]),
   ]);
 
   const wallpapers = (wallpaperItems ?? [])
@@ -134,6 +138,7 @@ export default async function Home() {
           body={bio?.body ?? null}
           experience={bio?.experience ?? []}
         />
+        <RadioTrigger episodes={episodes} />
       </div>
     </main>
     <SidePanel

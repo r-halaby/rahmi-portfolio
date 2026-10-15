@@ -173,6 +173,18 @@ export const mixesQuery = /* groq */ `
   }
 `;
 
+export const radioEpisodesQuery = /* groq */ `
+  *[_type == "radioEpisode"] | order(episodeNumber desc) {
+    _id,
+    episodeNumber,
+    title,
+    airDate,
+    description,
+    "audioUrl": audioFile.asset->url,
+    coverImage
+  }
+`;
+
 export const moviesQuery = /* groq */ `
   *[_type == "movie"] | order(year desc, title asc) {
     _id, title, director, year, annotation, url

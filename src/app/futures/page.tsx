@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Image } from "sanity";
 import { ExpandableDescription } from "@/components/expandable-description";
+import { ProjectImageTile } from "./project-image-tile";
 import { fetchArticleMeta } from "@/lib/articles";
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
@@ -135,27 +136,7 @@ function FutureCardRow({
         )}
       </div>
       {card.url ? (
-        <a
-          href={card.url}
-          target="_blank"
-          rel="noreferrer"
-          className="group block"
-        >
-          <div
-            style={{ aspectRatio: "16 / 9" }}
-            className="w-full overflow-hidden bg-ink/5"
-          >
-            {card.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={card.imageUrl}
-                alt=""
-                className="block h-full w-full object-cover transition-opacity group-hover:opacity-90"
-                loading="lazy"
-              />
-            )}
-          </div>
-        </a>
+        <ProjectImageTile url={card.url} imageUrl={card.imageUrl} />
       ) : (
         <div
           style={{ aspectRatio: "16 / 9" }}
