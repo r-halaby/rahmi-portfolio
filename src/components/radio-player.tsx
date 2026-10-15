@@ -20,7 +20,7 @@ type Props = {
 };
 
 function formatTime(seconds: number) {
-  if (!isFinite(seconds)) return "0:00";
+  if (!isFinite(seconds) || seconds < 0) return "0:00";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
@@ -38,6 +38,7 @@ export function RadioPlayer({ open, onClose, episodes }: Props) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -51,10 +52,22 @@ export function RadioPlayer({ open, onClose, episodes }: Props) {
   }, [open, onClose]);
 
   useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        const tab = document.querySelector("[data-radio-tab]");
+        if (tab && tab.contains(e.target as Node)) return;
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [open, onClose]);
+
+  useEffect(() => {
     if (!open) {
       audioRef.current?.pause();
       setPlaying(false);
-      setActiveId(null);
       setCurrentTime(0);
       setDuration(0);
     }
@@ -66,10 +79,8 @@ export function RadioPlayer({ open, onClose, episodes }: Props) {
     if (id === activeId) {
       if (playing) {
         audioRef.current?.pause();
-        setPlaying(false);
       } else {
         audioRef.current?.play();
-        setPlaying(true);
       }
       return;
     }
@@ -83,10 +94,8 @@ export function RadioPlayer({ open, onClose, episodes }: Props) {
     if (!audioRef.current) return;
     if (playing) {
       audioRef.current.pause();
-      setPlaying(false);
     } else {
       audioRef.current.play();
-      setPlaying(true);
     }
   }
 
@@ -99,122 +108,107 @@ export function RadioPlayer({ open, onClose, episodes }: Props) {
   if (!mounted) return null;
 
   return createPortal(
-    <AnimatePresence>
-      {open && (
-        <>
-          {activeEpisode?.audioUrl && (
-            <audio
-              key={activeEpisode._id}
-              ref={audioRef}
-              src={activeEpisode.audioUrl}
-              autoPlay
-              onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
-              onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
-              onPlay={() => setPlaying(true)}
-              onPause={() => setPlaying(false)}
-              onEnded={() => setPlaying(false)}
-            />
-          )}
-
-          <motion.div
-            key="backdrop"
-            onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-warm/10 backdrop-blur-md"
-          />
-
-          <motion.aside
-            key="panel"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "tween", duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-warm text-ink sm:w-[65vw]"
-            aria-modal="true"
-            role="dialog"
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="absolute right-6 top-5 text-sm tracking-wide hover:opacity-70 sm:right-8 sm:top-6"
-            >
-              ×
-            </button>
-
-            <div className="px-6 py-10 sm:px-14 sm:py-16">
-              <h2 className="mb-8 border-b border-hairline pb-2 text-4xl leading-none sm:text-6xl">
-                Radio
-              </h2>
-
-              {/* Player controls */}
-              <div className="mb-10 space-y-3">
-                <div className="text-base">
-                  {activeEpisode ? episodeLabel(activeEpisode) : "—"}
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    type="button"
-                    onClick={togglePlay}
-                    disabled={!activeEpisode?.audioUrl}
-                    className="text-sm tracking-wide hover:opacity-70 disabled:opacity-30"
-                  >
-                    {playing ? "PAUSE" : "PLAY"}
-                  </button>
-                  <span className="text-xs tabular-nums text-ink-muted">
-                    {formatTime(currentTime)} / {formatTime(duration)}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={duration || 0}
-                  step={0.1}
-                  value={currentTime}
-                  onChange={seek}
-                  disabled={!activeEpisode?.audioUrl}
-                  className="w-full cursor-pointer accent-ink disabled:opacity-30"
-                />
-              </div>
-
-              {/* Episode list */}
-              <div className="divide-y divide-hairline">
-                {episodes.length === 0 && (
-                  <p className="py-4 text-sm text-ink-muted">No episodes yet.</p>
-                )}
-                {episodes.map((ep) => {
-                  const isActive = ep._id === activeId;
-                  return (
-                    <button
-                      key={ep._id}
-                      type="button"
-                      onClick={() => selectEpisode(ep._id)}
-                      className="w-full py-4 text-left hover:opacity-70"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 shrink-0 text-xs text-ink-muted">
-                          {isActive && playing ? "▶" : ""}
-                        </span>
-                        <span className="text-base">{episodeLabel(ep)}</span>
-                      </div>
-                      {ep.airDate && (
-                        <div className="ml-5 mt-1 text-xs text-ink-muted">{ep.airDate}</div>
-                      )}
-                      {ep.description && (
-                        <div className="ml-5 mt-1 text-xs text-ink-muted">{ep.description}</div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.aside>
-        </>
+    <>
+      {activeEpisode?.audioUrl && (
+        <audio
+          key={activeEpisode._id}
+          ref={audioRef}
+          src={activeEpisode.audioUrl}
+          autoPlay
+          onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
+          onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+        />
       )}
-    </AnimatePresence>,
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={panelRef}
+            key="radio-panel"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ type: "tween", duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed right-8 top-12 z-40 w-80 overflow-hidden rounded-b-lg bg-black text-white shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <span className="text-xs tracking-widest">LOOK & FEEL RADIO</span>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-sm leading-none text-white/60 hover:text-white"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Player controls */}
+            <div className="px-4 py-4">
+              <div className="mb-3 truncate text-sm">
+                {activeEpisode ? episodeLabel(activeEpisode) : "Select an episode"}
+              </div>
+              <div className="mb-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  disabled={!activeEpisode?.audioUrl}
+                  className="text-xs tracking-widest hover:opacity-70 disabled:opacity-30"
+                >
+                  {playing ? "PAUSE" : "PLAY"}
+                </button>
+                <span className="text-xs tabular-nums text-white/50">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={duration || 0}
+                step={0.1}
+                value={currentTime}
+                onChange={seek}
+                disabled={!activeEpisode?.audioUrl}
+                className="w-full cursor-pointer accent-white disabled:opacity-30"
+                style={{ height: "2px" }}
+              />
+            </div>
+
+            {/* Episode list */}
+            <div className="max-h-60 overflow-y-auto border-t border-white/10">
+              {episodes.length === 0 && (
+                <p className="px-4 py-4 text-xs text-white/40">No episodes yet.</p>
+              )}
+              {episodes.map((ep) => {
+                const isActive = ep._id === activeId;
+                return (
+                  <button
+                    key={ep._id}
+                    type="button"
+                    onClick={() => selectEpisode(ep._id)}
+                    className={`w-full border-b border-white/5 px-4 py-3 text-left last:border-0 hover:bg-white/5 ${isActive ? "bg-white/10" : ""}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 shrink-0 text-xs text-white/40">
+                        {isActive && playing ? "▶" : ""}
+                      </span>
+                      <span className="text-sm">{episodeLabel(ep)}</span>
+                    </div>
+                    {ep.airDate && (
+                      <div className="ml-5 mt-0.5 text-xs text-white/40">{ep.airDate}</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>,
     document.body,
   );
 }

@@ -10,10 +10,19 @@ export function RadioTrigger({ episodes }: { episodes: RadioEpisode[] }) {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="text-sm tracking-wide hover:opacity-70"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Open radio player"
+        data-radio-tab
+        className="fixed right-8 top-0 z-50 flex items-center justify-center rounded-b-lg bg-black px-3 py-2 hover:opacity-80"
       >
-        -RADIO
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/look-and-feel-icon.png"
+          alt="Look & Feel Radio"
+          width={22}
+          height={22}
+          className="block"
+        />
       </button>
       <RadioPlayer open={open} onClose={() => setOpen(false)} episodes={episodes} />
     </>

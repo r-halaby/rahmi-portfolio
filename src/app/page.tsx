@@ -138,9 +138,9 @@ export default async function Home() {
           body={bio?.body ?? null}
           experience={bio?.experience ?? []}
         />
-        <RadioTrigger episodes={episodes} />
       </div>
     </main>
+    <RadioTrigger episodes={episodes} />
     <SidePanel
       wallpapers={wallpapers}
       backlog={backlog}
