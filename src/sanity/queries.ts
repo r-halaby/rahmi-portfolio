@@ -11,7 +11,7 @@ export const wishUpdatedQuery = /* groq */ `
 `;
 
 export const inspirationUpdatedQuery = /* groq */ `
-  *[_type in ["book","movie","album","mix","software","talk","nonprofit"] && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
+  *[_type in ["book","movie","album","mix","software","talk","nonprofit","art"] && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]._updatedAt
 `;
 
 export const photographyUpdatedQuery = /* groq */ `
@@ -163,7 +163,7 @@ export const photosQuery = /* groq */ `
 
 export const referenceIntrosQuery = /* groq */ `
   *[_type == "inspiration" && _id == "inspiration"][0] {
-    booksIntro, talksIntro, albumsIntro, mixesIntro, moviesIntro, softwareIntro, nonprofitsIntro
+    booksIntro, talksIntro, albumsIntro, mixesIntro, moviesIntro, softwareIntro, nonprofitsIntro, artIntro
   }
 `;
 
@@ -218,5 +218,11 @@ export const talksQuery = /* groq */ `
 export const nonprofitsQuery = /* groq */ `
   *[_type == "nonprofit"] | order(name asc) {
     _id, name, url, oneLiner
+  }
+`;
+
+export const artQuery = /* groq */ `
+  *[_type == "art"] | order(artist asc, name asc) {
+    _id, name, artist, year, url, coverImage, annotation
   }
 `;

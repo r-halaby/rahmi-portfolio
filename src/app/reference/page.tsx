@@ -6,6 +6,7 @@ import { client } from "@/sanity/client";
 import { daysAgo } from "@/lib/dates";
 import {
   albumsQuery,
+  artQuery,
   booksQuery,
   inspirationUpdatedQuery,
   mixesQuery,
@@ -80,6 +81,16 @@ type Nonprofit = {
   oneLiner: string;
 };
 
+type Art = {
+  _id: string;
+  name: string;
+  artist: string;
+  year: number | null;
+  url: string | null;
+  coverImage: Image | null;
+  annotation: string | null;
+};
+
 type Intros = {
   booksIntro: string | null;
   talksIntro: string | null;
@@ -88,6 +99,7 @@ type Intros = {
   moviesIntro: string | null;
   softwareIntro: string | null;
   nonprofitsIntro: string | null;
+  artIntro: string | null;
 } | null;
 
 export const revalidate = 60;
@@ -102,6 +114,7 @@ export default async function ReferencePage() {
     software,
     talks,
     nonprofits,
+    artworks,
     updatedAt,
   ] = await Promise.all([
     client.fetch<Intros>(referenceIntrosQuery).catch(() => null),
@@ -112,6 +125,7 @@ export default async function ReferencePage() {
     client.fetch<Software[]>(softwareQuery).catch(() => [] as Software[]),
     client.fetch<Talk[]>(talksQuery).catch(() => [] as Talk[]),
     client.fetch<Nonprofit[]>(nonprofitsQuery).catch(() => [] as Nonprofit[]),
+    client.fetch<Art[]>(artQuery).catch(() => [] as Art[]),
     client.fetch<string | null>(inspirationUpdatedQuery).catch(() => null),
   ]);
   const updated = daysAgo(updatedAt);
@@ -144,6 +158,13 @@ export default async function ReferencePage() {
         .url();
     }
     return albumCoversFetched[i];
+  });
+
+  const artCovers = artworks.map((a) => {
+    if (a.coverImage?.asset) {
+      return urlFor(a.coverImage).width(600).height(600).fit("crop").auto("format").url();
+    }
+    return null;
   });
 
   return (
@@ -248,6 +269,20 @@ export default async function ReferencePage() {
                 href={s.url}
                 aspect="square"
                 label={s.name}
+              />
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Art" intro={intros?.artIntro} empty={artworks.length === 0}>
+          <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 md:grid-cols-6">
+            {artworks.map((a, i) => (
+              <CoverTile
+                key={a._id}
+                imageUrl={artCovers[i]}
+                href={a.url}
+                aspect="square"
+                label={`${a.name} — ${a.artist}${a.year ? ` (${a.year})` : ""}`}
               />
             ))}
           </div>

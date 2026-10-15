@@ -1,6 +1,7 @@
 import type { SchemaTypeDefinition } from "sanity";
 
 import { album } from "./album";
+import { art } from "./art";
 import { article } from "./article";
 import { bio } from "./bio";
 import { book } from "./book";
@@ -45,6 +46,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   movie,
   book,
   album,
+  art,
   mix,
   software,
   talk,
