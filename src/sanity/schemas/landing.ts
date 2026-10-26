@@ -15,6 +15,7 @@ export const landing = defineType({
   type: "document",
   fields: [
     tile("work", "Experience"),
+    tile("portfolio", "Work"),
     tile("writing", "Writing"),
     tile("photography", "Photography"),
     tile("reference", "Inspiration"),
