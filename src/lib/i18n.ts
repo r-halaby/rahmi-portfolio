@@ -5,6 +5,7 @@ type Dict = Record<string, { en: string; fr: string }>;
 export const strings: Dict = {
   // Nav
   "nav.experience": { en: "Experience", fr: "Expérience" },
+  "nav.work": { en: "Work", fr: "Travaux" },
   "nav.writing": { en: "Writing", fr: "Écrits" },
   "nav.photography": { en: "Photography", fr: "Photographie" },
   "nav.reference": { en: "Inspiration", fr: "Inspiration" },

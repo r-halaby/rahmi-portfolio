@@ -20,7 +20,7 @@ export const photographyUpdatedQuery = /* groq */ `
 
 export const landingQuery = /* groq */ `
   *[_type == "landing" && _id == "landing"][0] {
-    work, writing, photography, reference, futures, wish
+    work, portfolio, writing, photography, reference, futures, wish
   }
 `;
 
