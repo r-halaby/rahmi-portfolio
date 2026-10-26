@@ -9,9 +9,10 @@ type Props = {
   label: string;
   labelKey?: string;
   imageUrl?: string | null;
+  external?: boolean;
 };
 
-export function NavBox({ href, label, labelKey, imageUrl }: Props) {
+export function NavBox({ href, label, labelKey, imageUrl, external }: Props) {
   const [hover, setHover] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const tr = useT();
@@ -22,6 +23,8 @@ export function NavBox({ href, label, labelKey, imageUrl }: Props) {
       <Link
         href={href}
         aria-label={displayLabel}
+        target={external ? "_blank" : undefined}
+        rel={external ? "noopener noreferrer" : undefined}
         className={`relative block aspect-square overflow-hidden ${imageUrl ? "" : "bg-warm"}`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}

@@ -25,7 +25,7 @@ import {
   wallpapersQuery,
 } from "@/sanity/queries";
 
-type LandingKey = "work" | "writing" | "photography" | "reference" | "futures" | "wish";
+type LandingKey = "work" | "portfolio" | "writing" | "photography" | "reference" | "futures" | "wish";
 type Landing = Partial<Record<LandingKey, Image | null>> | null;
 
 type Bio = {
@@ -50,8 +50,10 @@ const NAV: {
   href: string;
   label: string;
   labelKey: string;
+  external?: boolean;
 }[] = [
   { key: "work", href: "/work", label: "Experience", labelKey: "nav.experience" },
+  { key: "portfolio", href: "https://rahmi.design/", label: "Work", labelKey: "nav.work", external: true },
   { key: "writing", href: "/writing", label: "Writing", labelKey: "nav.writing" },
   { key: "photography", href: "/photography", label: "Photography", labelKey: "nav.photography" },
   { key: "reference", href: "/reference", label: "Inspiration", labelKey: "nav.reference" },
@@ -118,7 +120,7 @@ export default async function Home() {
       <LandingBackground />
       <div className="relative z-10 px-8 py-6 text-sm tracking-wide">RAHMI HALABY</div>
       <div className="relative z-10 flex flex-1 items-center justify-center px-8">
-        <div className="grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+        <div className="grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7">
           {NAV.map((item) => (
             <NavBox
               key={item.href}
@@ -126,6 +128,7 @@ export default async function Home() {
               label={item.label}
               labelKey={item.labelKey}
               imageUrl={tileUrl(landing?.[item.key])}
+              external={item.external}
             />
           ))}
         </div>
